@@ -570,19 +570,10 @@ details .table-responsive {
         <h2>Add New Engine Assignment</h2>
         <div class="form-grid">
             
-            <div id="admin-user-selection" style="grid-column: 1 / -1; display: flex; gap: 20px; align-items: center; margin-bottom: 5px;">
-                <label style="font-weight: bold; cursor: pointer;"><input type="radio" name="user-mode" value="existing" checked onchange="toggleUserMode()"> Existing User</label>
-                <label style="font-weight: bold; cursor: pointer;"><input type="radio" name="user-mode" value="new" onchange="toggleUserMode()"> Create New User</label>
-            </div>
-            
             <div id="existing-user-div">
                 <select id="existing-user">
                     <option value="">Select a user...</option>
                 </select>
-            </div>
-            
-            <div id="new-user-div" style="display: none;">
-                <input id="new-user" type="text" placeholder="Enter new user name">
             </div>
 
             <div id="user-display-div" style="display: none; grid-column: 1 / -1; padding: 10px 0; font-weight: bold; color: var(--dark);">
@@ -843,12 +834,8 @@ document.addEventListener("DOMContentLoaded", async function() {
         if(addForm) addForm.style.display = 'block';
         
         // Hide admin-specific fields in Add Form
-        const adminUserSel = document.getElementById('admin-user-selection');
-        if (adminUserSel) adminUserSel.style.display = 'none';
         const existingDiv = document.getElementById('existing-user-div');
         if (existingDiv) existingDiv.style.display = 'none';
-        const newDiv = document.getElementById('new-user-div');
-        if (newDiv) newDiv.style.display = 'none';
         
         // Show read-only user display
         const displayDiv = document.getElementById('user-display-div');
@@ -882,17 +869,7 @@ const sampleData = [
     { id: "3", user: "Carol Williams", engine: "CryEngine 5.11", assigned: "2024-05-06", target: "2024-06-20", completion: "", status: "In Progress", remarks: "Rendering pipeline in progress." }
 ];
 
-function toggleUserMode() {
-    if (userRole !== 'admin') return;
-    const mode = document.querySelector('input[name="user-mode"]:checked').value;
-    if (mode === 'existing') {
-        document.getElementById('existing-user-div').style.display = 'block';
-        document.getElementById('new-user-div').style.display = 'none';
-    } else {
-        document.getElementById('existing-user-div').style.display = 'none';
-        document.getElementById('new-user-div').style.display = 'block';
-    }
-}
+
 
 function renderAuthUsers() {
     const grid = document.getElementById("auth-users-grid");
@@ -1181,17 +1158,7 @@ function renderPagination(totalItems) {
 async function saveRecord() {
     let userVal = "";
     if (userRole === 'admin') {
-        const mode = document.querySelector('input[name="user-mode"]:checked').value;
-        if (mode === 'existing') {
-            userVal = document.getElementById('existing-user').value.trim();
-        } else {
-            userVal = document.getElementById('new-user').value.trim();
-            if (userVal && !authUsers.includes(userVal)) {
-                await dbHelper.addUser(userVal);
-                authUsers = await dbHelper.getUsers();
-                renderAuthUsers();
-            }
-        }
+        userVal = document.getElementById('existing-user').value.trim();
     } else {
         userVal = userName;
     }
@@ -1305,10 +1272,8 @@ function toggleProjectSummary() {
 
 // Reset Form to Add mode
 function resetForm() {
-    document.querySelector('input[name="user-mode"][value="existing"]').checked = true;
-    toggleUserMode();
-    document.getElementById('existing-user').value = "";
-    document.getElementById('new-user').value = "";
+    const select = document.getElementById('existing-user');
+    if (select) select.value = "";
     document.getElementById('engine').value = "";
     document.getElementById('target').value = "";
     document.getElementById('completion').value = "";
