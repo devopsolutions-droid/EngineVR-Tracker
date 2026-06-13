@@ -44,7 +44,8 @@
         border-radius: 16px;
         box-shadow: 0 15px 35px rgba(13, 47, 95, 0.08), 0 5px 15px rgba(0, 0, 0, 0.02);
         padding: 40px 35px;
-        width: 400px;
+        width: 100%;
+        max-width: 400px;
         box-sizing: border-box;
         border: 1px solid var(--border);
         border-top: 5px solid var(--dark);
@@ -214,6 +215,40 @@
 
     .password-toggle-btn:hover {
         color: var(--primary);
+    }
+
+    @media (max-width: 480px) {
+        body {
+            padding: 12px;
+        }
+        .login-box {
+            padding: 28px 22px;
+            border-radius: 12px;
+        }
+        .brand-container h1 {
+            font-size: 1.5rem;
+        }
+        .login-header p {
+            font-size: 0.75rem;
+        }
+        .tabs {
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 5px;
+            font-size: 0.85rem;
+        }
+        .input-group {
+            margin-bottom: 16px;
+        }
+        .input-group input {
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+        .btn-login {
+            padding: 12px;
+            font-size: 0.95rem;
+        }
     }
 </style>
 </head>

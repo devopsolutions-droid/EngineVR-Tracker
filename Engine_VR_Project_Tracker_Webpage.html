@@ -710,6 +710,181 @@ details .table-responsive {
     to { transform: scale(1); opacity: 1; }
 }
 
+/* Custom Scrollbar for responsive tables */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f3f5;
+    border-radius: 4px;
+}
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #c1c9d2;
+    border-radius: 4px;
+}
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #a1aab5;
+}
+
+/* User Login Management Admin Form styles */
+.admin-create-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    max-width: 500px;
+}
+.admin-create-row input {
+    flex: 1;
+}
+.btn-admin-create {
+    width: auto !important;
+    background: #4a148c !important;
+    white-space: nowrap;
+}
+.btn-admin-create:hover {
+    background: #3c1070 !important;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 992px) {
+    .brand-text {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 15px 12px;
+    }
+    
+    .navbar {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+        padding: 15px 20px;
+        text-align: center;
+    }
+    
+    .brand {
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+    }
+    
+    .brand-text {
+        font-size: 1.35rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    /* Make subtitle fit nicely under brand text */
+    .brand-text span[style*="font-size: 1.2rem"] {
+        margin-left: 0 !important;
+        font-size: 1rem !important;
+        border-left: none;
+        padding-left: 0;
+    }
+    
+    .user-profile-pill {
+        width: 100%;
+        max-width: 280px;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+    
+    .dashboard {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .stat-card {
+        min-width: unset;
+        padding: 15px 10px;
+        font-size: 1rem;
+    }
+    
+    .stat-card span {
+        font-size: 1.6rem;
+    }
+    
+    .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    body {
+        padding: 10px 8px;
+    }
+    
+    .card {
+        padding: 15px 12px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+    }
+    
+    .card h2 {
+        font-size: 1.25rem;
+        margin-bottom: 12px;
+    }
+    
+    .dashboard {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .admin-create-row {
+        flex-direction: column;
+        max-width: 100%;
+        gap: 10px;
+    }
+    
+    .btn-admin-create {
+        width: 100% !important;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .form-actions {
+        margin-top: 5px;
+    }
+    
+    .filter-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .filter-container input,
+    .filter-container select {
+        width: 100%;
+    }
+    
+    summary {
+        padding: 12px;
+        font-size: 0.95rem;
+    }
+    
+    details .table-responsive {
+        padding: 10px 5px;
+    }
+    
+    .modal-content {
+        padding: 20px 16px;
+        width: 100%;
+    }
+    
+    #db-status-badge {
+        margin-left: 0 !important;
+        margin-top: 5px;
+    }
+}
 </style>
 </head>
 <body>
@@ -758,9 +933,9 @@ details .table-responsive {
         </h2>
         <div id="user-management-container">
             <p style="font-size: 0.9rem; color: #666; margin-top: -10px; margin-bottom: 15px;">Create and manage User IDs that are allowed to log in.</p>
-            <div style="display: flex; gap: 10px; margin-bottom: 15px; max-width: 500px;">
-                <input type="text" id="new-auth-user" placeholder="New User ID..." style="flex: 1;">
-                <button onclick="addAuthUser()" style="width: auto; background: #4a148c; white-space: nowrap;">Create Login User</button>
+            <div class="admin-create-row">
+                <input type="text" id="new-auth-user" placeholder="New User ID...">
+                <button onclick="addAuthUser()" class="btn-admin-create">Create Login User</button>
             </div>
             <div id="auth-users-grid" class="user-grid"></div>
         </div>
