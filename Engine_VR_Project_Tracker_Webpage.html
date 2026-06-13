@@ -433,6 +433,43 @@ tr:hover {
     box-shadow: 0 4px 10px rgba(108, 117, 125, 0.15);
 }
 
+.pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 6px;
+    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    background: #ffffff;
+    color: var(--dark);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination-btn:hover {
+    border-color: var(--primary);
+    background: rgba(13, 110, 253, 0.05);
+    color: var(--primary);
+}
+
+.pagination-btn.active {
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f8f9fa;
+    color: #999;
+    border-color: var(--border);
+}
+
 /* Accordions for User View */
 details {
     background: #f8f9fa;
@@ -612,6 +649,7 @@ details .table-responsive {
                 </thead>
                 <tbody></tbody>
             </table>
+            <div id="pagination-controls" style="margin-top: 15px; display: flex; justify-content: center; gap: 8px; align-items: center;"></div>
         </div>
     </div>
 
@@ -771,6 +809,10 @@ const dbHelper = {
 let data = [];
 let editingId = null;
 let authUsers = [];
+let currentPage = 1;
+const itemsPerPage = 6;
+let lastSearchStr = "";
+let lastFilterStatus = "All";
 
 document.addEventListener("DOMContentLoaded", async function() {
     // Set Database Status Badge
@@ -931,6 +973,12 @@ function render() {
     const searchStr = document.getElementById('search-input').value.toLowerCase();
     const filterStatus = document.getElementById('filter-status').value;
 
+    if (searchStr !== lastSearchStr || filterStatus !== lastFilterStatus) {
+        currentPage = 1;
+        lastSearchStr = searchStr;
+        lastFilterStatus = filterStatus;
+    }
+
     // Apply Filters
     const filteredData = data.filter(d => {
         const matchesSearch = d.user.toLowerCase().includes(searchStr) || d.engine.toLowerCase().includes(searchStr);
@@ -941,6 +989,16 @@ function render() {
     updateDashboard(filteredData);
     updateUserList();
 
+    // Handle Pagination bounds
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    if (currentPage > totalPages) {
+        currentPage = Math.max(1, totalPages);
+    }
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedData = filteredData.slice(startIndex, endIndex);
+
     // Render Summary Table
     const tbody = document.querySelector("#summary tbody");
     tbody.innerHTML = "";
@@ -948,7 +1006,7 @@ function render() {
     if (filteredData.length === 0) {
         tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 20px;">No records found.</td></tr>`;
     } else {
-        filteredData.forEach(d => {
+        paginatedData.forEach(d => {
             if (d.id === editingId) {
                 tbody.innerHTML += `<tr>
                     <td>${d.user}</td>
@@ -1015,6 +1073,8 @@ function render() {
         });
     }
 
+    renderPagination(filteredData.length);
+
     // Render User-Wise Accordions
     const usersObj = {};
     filteredData.forEach(d => {
@@ -1064,6 +1124,57 @@ function render() {
     }
     
     document.getElementById("userSections").innerHTML = html;
+}
+
+function renderPagination(totalItems) {
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const container = document.getElementById("pagination-controls");
+    if (!container) return;
+
+    container.innerHTML = "";
+    if (totalPages <= 1) {
+        return;
+    }
+
+    // Prev Button
+    const prevBtn = document.createElement("button");
+    prevBtn.className = "pagination-btn";
+    prevBtn.innerHTML = "&laquo;";
+    prevBtn.title = "Previous Page";
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.onclick = () => {
+        if (currentPage > 1) {
+            currentPage--;
+            render();
+        }
+    };
+    container.appendChild(prevBtn);
+
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        const pageBtn = document.createElement("button");
+        pageBtn.className = "pagination-btn" + (i === currentPage ? " active" : "");
+        pageBtn.innerText = i;
+        pageBtn.onclick = () => {
+            currentPage = i;
+            render();
+        };
+        container.appendChild(pageBtn);
+    }
+
+    // Next Button
+    const nextBtn = document.createElement("button");
+    nextBtn.className = "pagination-btn";
+    nextBtn.innerHTML = "&raquo;";
+    nextBtn.title = "Next Page";
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.onclick = () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            render();
+        }
+    };
+    container.appendChild(nextBtn);
 }
 
 // Add Record
