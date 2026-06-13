@@ -1028,7 +1028,7 @@ async function removeAuthUser(user) {
     }
     const confirmed = await showCustomConfirm(
         "Revoke User Login",
-        `Are you sure you want to revoke login access for "${user}"?`,
+        `Are you sure you want to revoke login access for <strong style="color: var(--primary); font-weight: 700;">${user}</strong>?<br><br><span style="color: #6c757d; font-size: 0.85rem; font-weight: 600;">This will disable their dashboard access.</span>`,
         false
     );
     if (confirmed) {
@@ -1359,8 +1359,8 @@ async function deleteRecord(id) {
     }
     const record = data.find(d => d.id === id);
     const message = record 
-        ? `Are you sure you want to delete the assignment of "${record.engine}" for "${record.user}"? This action cannot be undone.`
-        : "Are you sure you want to delete this engine assignment? This action cannot be undone.";
+        ? `Are you sure you want to delete the assignment of <strong style="color: var(--primary); font-weight: 700;">${record.engine}</strong> for <strong style="color: var(--primary); font-weight: 700;">${record.user}</strong>?<br><br><span style="color: #dc3545; font-size: 0.85rem; font-weight: 600;">This action cannot be undone.</span>`
+        : `Are you sure you want to delete this engine assignment?<br><br><span style="color: #dc3545; font-size: 0.85rem; font-weight: 600;">This action cannot be undone.</span>`;
 
     const confirmed = await showCustomConfirm(
         "Delete Assignment",
@@ -1420,7 +1420,7 @@ function showCustomConfirm(title, message, isDanger = true) {
         const iconEl = document.querySelector('.modal-icon');
 
         titleEl.innerText = title;
-        msgEl.innerText = message;
+        msgEl.innerHTML = message;
 
         if (isDanger) {
             okBtn.className = "modal-btn btn-danger";
