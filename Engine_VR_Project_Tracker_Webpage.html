@@ -509,23 +509,29 @@ details .table-responsive {
     background: #fff;
 }
 
-.drive-link {
+.drive-link-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    border: 1.5px solid rgba(0, 0, 0, 0.08);
-    background: #ffffff;
+    padding: 5px 14px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-radius: 20px;
+    text-decoration: none;
     transition: all 0.2s ease-in-out;
+    border: 1.5px solid rgba(13, 110, 253, 0.15);
+    background: rgba(13, 110, 253, 0.05);
+    color: var(--primary);
 }
 
-.drive-link:hover {
-    background: #f1f3f5;
-    border-color: rgba(0, 0, 0, 0.18);
+.drive-link-badge:hover {
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.15);
 }
 
 /* Custom Confirm Modal Styling */
@@ -1199,13 +1205,7 @@ function render() {
                     <td>${d.remarks || ""}</td>
                     <td>
                         ${d.driveUrl ? `
-                        <a href="${d.driveUrl}" target="_blank" class="drive-link" title="Open Google Drive Link">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M19.38 14.5H8.75l-1.87-3.25 5.31-9.19h5.31l5.31 9.19-3.43 5.95z" fill="#00AC47"/>
-                                <path d="M8.75 14.5l-3.43-5.95L8.75 2.06l3.43 5.95L8.75 14.5z" fill="#0066DA"/>
-                                <path d="M19.38 14.5l-3.43 5.95H2.19l3.43-5.95h13.76z" fill="#FFBA00"/>
-                            </svg>
-                        </a>` : '<span style="color: #bbb;">-</span>'}
+                        <a href="${d.driveUrl}" target="_blank" class="drive-link-badge" title="Open Drive Attachment">Preview</a>` : '<span style="color: #bbb;">-</span>'}
                     </td>
                     <td>
                         <div class="action-buttons">
@@ -1276,13 +1276,7 @@ function render() {
                 <td>${r.remarks || ""}</td>
                 <td>
                     ${r.driveUrl ? `
-                    <a href="${r.driveUrl}" target="_blank" class="drive-link" title="Open Google Drive Link">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M19.38 14.5H8.75l-1.87-3.25 5.31-9.19h5.31l5.31 9.19-3.43 5.95z" fill="#00AC47"/>
-                            <path d="M8.75 14.5l-3.43-5.95L8.75 2.06l3.43 5.95L8.75 14.5z" fill="#0066DA"/>
-                            <path d="M19.38 14.5l-3.43 5.95H2.19l3.43-5.95h13.76z" fill="#FFBA00"/>
-                        </svg>
-                    </a>` : '<span style="color: #bbb;">-</span>'}
+                    <a href="${r.driveUrl}" target="_blank" class="drive-link-badge" title="Open Drive Attachment">Preview</a>` : '<span style="color: #bbb;">-</span>'}
                 </td>
             </tr>`;
         });
