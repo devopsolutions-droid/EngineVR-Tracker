@@ -1229,7 +1229,7 @@ function render() {
                     <td>${d.user}</td>
                     <td>${d.engine}</td>
                     <td><input type="date" id="inline-assigned-${d.id}" value="${d.assigned}" ${userRole === 'admin' ? '' : 'disabled'}></td>
-                    <td>${d.target}</td>
+                    <td><input type="date" id="inline-target-${d.id}" value="${d.target}" ${userRole === 'admin' ? '' : 'disabled'}></td>
                     <td><input type="date" id="inline-completion-${d.id}" value="${d.completion}"></td>
                     <td>
                         <select id="inline-status-${d.id}">
@@ -1488,6 +1488,7 @@ async function saveInline(id) {
         return;
     }
     const assignedVal = document.getElementById(`inline-assigned-${id}`).value;
+    const targetVal = document.getElementById(`inline-target-${id}`).value;
     const completionVal = document.getElementById(`inline-completion-${id}`).value;
     const statusVal = document.getElementById(`inline-status-${id}`).value;
     const remarksVal = document.getElementById(`inline-remarks-${id}`).value;
@@ -1495,6 +1496,7 @@ async function saveInline(id) {
 
     await dbHelper.updateRecord(id, {
         assigned: assignedVal,
+        target: targetVal,
         completion: completionVal,
         status: statusVal,
         remarks: remarksVal,
