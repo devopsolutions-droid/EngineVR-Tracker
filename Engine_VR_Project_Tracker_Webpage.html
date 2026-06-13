@@ -410,6 +410,9 @@ button:hover {
 /* Tables */
 .table-responsive {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    padding-bottom: 8px; /* Extra padding to ensure scrollbar is not cut off */
 }
 
 #summary-table-container {
@@ -1048,6 +1051,10 @@ details .table-responsive {
     
     .btn-admin-create {
         width: 100% !important;
+    }
+    
+    .user-grid {
+        grid-template-columns: 1fr !important; /* Stack user tiles on mobile */
     }
     
     .form-grid {
