@@ -510,40 +510,99 @@ tr:hover {
 
 /* Accordions for User View */
 details {
-    background: #f8f9fa;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    margin-bottom: 10px;
+    background: #ffffff;
+    border: 1px solid rgba(13, 47, 95, 0.1);
+    border-radius: 12px;
+    margin-bottom: 12px;
     overflow: hidden;
+    box-shadow: 0 2px 8px rgba(13, 47, 95, 0.06);
+    transition: box-shadow 0.2s;
+}
+
+details:hover {
+    box-shadow: 0 4px 16px rgba(13, 47, 95, 0.10);
 }
 
 summary {
-    padding: 15px;
-    background: var(--dark);
+    padding: 16px 20px;
+    background: linear-gradient(120deg, var(--dark) 0%, #1a4a8a 100%);
     color: white;
-    font-weight: bold;
+    font-weight: 700;
     cursor: pointer;
     list-style: none;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
+    letter-spacing: 0.2px;
+    transition: filter 0.2s;
+}
+
+summary:hover {
+    filter: brightness(1.08);
 }
 
 summary::-webkit-details-marker {
     display: none;
 }
 
-summary::after {
-    content: '▼';
-    font-size: 0.8rem;
+.summary-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-details[open] summary::after {
-    content: '▲';
+.user-avatar-sm {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    letter-spacing: 0;
+}
+
+.summary-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.accordion-progress-pill {
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.15);
+    border: 1.5px solid rgba(255,255,255,0.25);
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.accordion-progress-pill.all-done {
+    background: rgba(56, 118, 29, 0.35);
+    border-color: rgba(106, 200, 66, 0.5);
+    color: #b6f5a0;
+}
+
+.accordion-chevron {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    transition: transform 0.25s ease;
+}
+
+details[open] .accordion-chevron {
+    transform: rotate(180deg);
 }
 
 details .table-responsive {
-    padding: 15px;
+    padding: 16px;
     background: #fff;
 }
 
@@ -1029,7 +1088,7 @@ details .table-responsive {
 
     <!-- User Wise Tracking -->
     <div class="card">
-        <h2>User Tracking (User-Wise View)</h2>
+        <h2>User Tracking</h2>
         <p style="font-size: 0.9rem; color: #666; margin-top: -10px; margin-bottom: 15px;">Click on a user to expand and view their assigned engines.</p>
         <div id="userSections"></div>
     </div>
@@ -1497,11 +1556,19 @@ function render() {
         const completedCount = userEngines.filter(e => e.status === 'Completed').length;
         const totalCount = userEngines.length;
 
+        const initials = user.split(' ').map(w => w[0]).slice(0,2).join('');
+        const allDone = completedCount === totalCount;
         html += `<details>
             <summary>
-                <span>${user}</span>
-                <span style="font-size: 0.85rem; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px;">
-                    ${completedCount} / ${totalCount} Completed
+                <span class="summary-left">
+                    <span class="user-avatar-sm">${initials}</span>
+                    <span>${user}</span>
+                </span>
+                <span class="summary-right">
+                    <span class="accordion-progress-pill ${allDone ? 'all-done' : ''}">
+                        ${completedCount} / ${totalCount} Completed
+                    </span>
+                    <span class="accordion-chevron">▼</span>
                 </span>
             </summary>
             <div class='table-responsive'>
