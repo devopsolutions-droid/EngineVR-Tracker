@@ -36,7 +36,7 @@ body {
 }
 
 .container {
-    max-width: 1400px;
+    max-width: 1650px;
     margin: auto;
 }
 
@@ -323,7 +323,7 @@ button:hover {
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 900px;
+    min-width: 1100px; /* Expanded minimum width to allow breathable layout */
 }
 
 th {
@@ -337,6 +337,44 @@ td {
     padding: 10px;
     border: 1px solid var(--border);
     vertical-align: middle;
+}
+
+/* Prevent wrapping of short columns to keep them on a single line */
+#summary th, #summary td,
+details table th, details table td {
+    white-space: nowrap;
+}
+
+/* Allow Remarks column to wrap normally for descriptions */
+#summary th:nth-child(7), #summary td:nth-child(7) {
+    white-space: normal;
+    min-width: 280px;
+    width: auto;
+}
+
+details table th:nth-child(6), details table td:nth-child(6) {
+    white-space: normal;
+    min-width: 280px;
+    width: auto;
+}
+
+/* Inline Edit Inputs formatting */
+table input[type="date"], 
+table select, 
+table input[type="text"], 
+table input[type="url"] {
+    width: 100%;
+    min-width: 120px;
+    padding: 6px;
+    border: 1.5px solid #dcdfe6;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+
+table input[type="text"] {
+    min-width: 200px;
 }
 
 tr:nth-child(even) {
