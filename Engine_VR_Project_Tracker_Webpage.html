@@ -1452,6 +1452,25 @@ async function removeAuthUser(userId) {
     }
 }
 
+// Helper for date formatting (yyyy-mm-dd -> dd-mm-yy)
+function formatDate(dateStr) {
+    if (!dateStr) return "-";
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+        return `${parts[2]}-${parts[1]}-${parts[0].slice(-2)}`;
+    }
+    return dateStr;
+}
+
+// Helper for table avatars
+function getTableAvatar(name) {
+    const firstWord = name ? name.split(' ')[0] : '';
+    const initial = firstWord ? firstWord.charAt(0).toUpperCase() : 'U';
+    const colors = ['#9b59b6', '#3498db', '#e67e22', '#1abc9c', '#e74c3c', '#34495e'];
+    const color = colors[initial.charCodeAt(0) % colors.length];
+    return `<div style="display: flex; align-items: center;"><span style="display:flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:${color}; color:white; font-size:0.8rem; font-weight:bold; margin-right:8px;">${initial}</span><span>${firstWord}</span></div>`;
+}
+
 // Helper for status CSS class
 function statusClass(s) {
     if(s === "Completed") return "completed";
@@ -1519,7 +1538,7 @@ function render() {
         paginatedData.forEach(d => {
             if (d.id === editingId) {
                 tbody.innerHTML += `<tr>
-                    <td>${d.user}</td>
+                    <td>${getTableAvatar(d.user)}</td>
                     <td>${d.engine}</td>
                     <td><input type="date" id="inline-assigned-${d.id}" value="${d.assigned}" ${userRole === 'admin' ? '' : 'disabled'}></td>
                     <td><input type="date" id="inline-target-${d.id}" value="${d.target}" ${userRole === 'admin' ? '' : 'disabled'}></td>
@@ -1552,11 +1571,11 @@ function render() {
                 </tr>`;
             } else {
                 tbody.innerHTML += `<tr>
-                    <td>${d.user}</td>
+                    <td>${getTableAvatar(d.user)}</td>
                     <td>${d.engine}</td>
-                    <td>${d.assigned}</td>
-                    <td>${d.target}</td>
-                    <td>${d.completion}</td>
+                    <td>${formatDate(d.assigned)}</td>
+                    <td>${formatDate(d.target)}</td>
+                    <td>${formatDate(d.completion)}</td>
                     <td><span class="status ${statusClass(d.status)}">${d.status}</span></td>
                     <td>${d.remarks || ""}</td>
                     <td>
@@ -1649,9 +1668,9 @@ function render() {
         userEngines.forEach(r => {
             html += `<tr>
                 <td>${r.engine}</td>
-                <td>${r.assigned}</td>
-                <td>${r.target}</td>
-                <td>${r.completion}</td>
+                <td>${formatDate(r.assigned)}</td>
+                <td>${formatDate(r.target)}</td>
+                <td>${formatDate(r.completion)}</td>
                 <td><span class="status ${statusClass(r.status)}">${r.status}</span></td>
                 <td>${r.remarks || ""}</td>
                 <td>
