@@ -363,13 +363,74 @@ tr:hover {
 
 .action-buttons {
     display: flex;
-    gap: 5px;
+    gap: 8px;
 }
 
-.action-buttons button {
-    padding: 6px 10px;
-    font-size: 0.8rem;
-    width: auto;
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 8px;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    background: transparent;
+    outline: none;
+}
+
+.btn-action-edit {
+    color: var(--primary);
+    border-color: rgba(13, 110, 253, 0.15);
+    background: rgba(13, 110, 253, 0.05);
+}
+
+.btn-action-edit:hover {
+    color: #ffffff;
+    background: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.15);
+}
+
+.btn-action-delete {
+    color: #dc3545;
+    border-color: rgba(220, 53, 69, 0.15);
+    background: rgba(220, 53, 69, 0.05);
+}
+
+.btn-action-delete:hover {
+    color: #ffffff;
+    background: #dc3545;
+    border-color: #dc3545;
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.15);
+}
+
+.btn-action-save {
+    color: #198754;
+    border-color: rgba(25, 135, 84, 0.15);
+    background: rgba(25, 135, 84, 0.05);
+}
+
+.btn-action-save:hover {
+    color: #ffffff;
+    background: #198754;
+    border-color: #198754;
+    box-shadow: 0 4px 10px rgba(25, 135, 84, 0.15);
+}
+
+.btn-action-cancel {
+    color: #6c757d;
+    border-color: rgba(108, 117, 125, 0.15);
+    background: rgba(108, 117, 125, 0.05);
+}
+
+.btn-action-cancel:hover {
+    color: #ffffff;
+    background: #6c757d;
+    border-color: #6c757d;
+    box-shadow: 0 4px 10px rgba(108, 117, 125, 0.15);
 }
 
 /* Accordions for User View */
@@ -906,8 +967,17 @@ function render() {
                     <td><input type="text" id="inline-remarks-${d.id}" value="${d.remarks || ""}"></td>
                     <td>
                         <div class="action-buttons">
-                            <button class="btn-edit" style="background:#198754; color:white;" onclick="saveInline('${d.id}')">Save</button>
-                            <button class="btn-cancel" onclick="cancelInline()">Cancel</button>
+                            <button type="button" class="btn-action btn-action-save" onclick="saveInline('${d.id}')" title="Save">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </button>
+                            <button type="button" class="btn-action btn-action-cancel" onclick="cancelInline()" title="Cancel">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
                         </div>
                     </td>
                 </tr>`;
@@ -922,8 +992,22 @@ function render() {
                     <td>${d.remarks || ""}</td>
                     <td>
                         <div class="action-buttons">
-                            ${(userRole === 'admin' || d.user === userName) ? `<button class="btn-edit" onclick="editRecord('${d.id}')">Edit</button>` : ''}
-                            ${userRole === 'admin' ? `<button class="btn-delete" onclick="deleteRecord('${d.id}')">Del</button>` : ''}
+                            ${(userRole === 'admin' || d.user === userName) ? `
+                            <button type="button" class="btn-action btn-action-edit" onclick="editRecord('${d.id}')" title="Edit">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>` : ''}
+                            ${userRole === 'admin' ? `
+                            <button type="button" class="btn-action btn-action-delete" onclick="deleteRecord('${d.id}')" title="Delete">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                            </button>` : ''}
                         </div>
                     </td>
                 </tr>`;
