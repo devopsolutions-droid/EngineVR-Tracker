@@ -998,7 +998,7 @@ details .table-responsive {
     </div>
 
     <!-- Add Form -->
-    <div class="card form-card" id="add-form-card">
+    <div class="card form-card" id="add-form-card" style="display: none;">
         <h2>Add New Engine Assignment</h2>
         <div class="form-grid">
             
@@ -1285,22 +1285,16 @@ document.addEventListener("DOMContentLoaded", async function() {
     const avatarEl = document.getElementById('user-avatar-char');
     if (avatarEl) avatarEl.innerText = avatarChar;
     
-    if (userRole !== 'admin') {
+    if (userRole === 'admin') {
         const addForm = document.getElementById('add-form-card');
-        if(addForm) addForm.style.display = 'block';
-        
-        // Hide admin-specific fields in Add Form
-        const existingDiv = document.getElementById('existing-user-div');
-        if (existingDiv) existingDiv.style.display = 'none';
-        
-        // Show read-only user display
-        const displayDiv = document.getElementById('user-display-div');
-        if (displayDiv) displayDiv.style.display = 'block';
-        const displayName = document.getElementById('user-display-name');
-        if (displayName) displayName.innerText = userName;
-    } else {
+        if (addForm) addForm.style.display = 'block';
+
         const userMgmt = document.getElementById('user-management-card');
-        if(userMgmt) userMgmt.style.display = 'block';
+        if (userMgmt) userMgmt.style.display = 'block';
+    } else {
+        // Regular users: hide the Add Form entirely
+        const addForm = document.getElementById('add-form-card');
+        if (addForm) addForm.style.display = 'none';
     }
 
     await initData();
