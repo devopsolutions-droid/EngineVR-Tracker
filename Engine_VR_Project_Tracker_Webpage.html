@@ -419,7 +419,6 @@ button:hover {
     border-radius: 12px;
     border: 1px solid var(--border);
     overflow-x: auto;
-    overflow-y: hidden;
 }
 
 table {
@@ -998,6 +997,15 @@ details .table-responsive {
         max-width: 280px;
         justify-content: center;
         box-sizing: border-box;
+    }
+    
+    /* Disable custom scrollbars on touch devices for better swipe support */
+    .table-responsive::-webkit-scrollbar {
+        display: none;
+    }
+    .table-responsive {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
     }
     
     .dashboard {
