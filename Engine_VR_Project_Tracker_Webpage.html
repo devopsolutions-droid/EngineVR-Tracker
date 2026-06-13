@@ -746,6 +746,11 @@ details .table-responsive {
             <input id="engine" placeholder="Engine Name">
             
             <div class="date-group">
+                <label>Date Assigned</label>
+                <input id="assigned" type="date">
+            </div>
+
+            <div class="date-group">
                 <label>Target Date</label>
                 <input id="target" type="date">
             </div>
@@ -1030,6 +1035,16 @@ document.addEventListener("DOMContentLoaded", async function() {
     }
 
     await initData();
+
+    // Set default Assigned Date
+    const today = new Date().toISOString().split("T")[0];
+    const assignedInput = document.getElementById('assigned');
+    if (assignedInput) {
+        assignedInput.value = today;
+        if (userRole !== 'admin') {
+            assignedInput.disabled = true;
+        }
+    }
 });
 
 async function initData() {
@@ -1175,7 +1190,7 @@ function render() {
                 tbody.innerHTML += `<tr>
                     <td>${d.user}</td>
                     <td>${d.engine}</td>
-                    <td>${d.assigned}</td>
+                    <td><input type="date" id="inline-assigned-${d.id}" value="${d.assigned}" ${userRole === 'admin' ? '' : 'disabled'}></td>
                     <td>${d.target}</td>
                     <td><input type="date" id="inline-completion-${d.id}" value="${d.completion}"></td>
                     <td>
@@ -1385,6 +1400,7 @@ async function saveRecord() {
     }
     
     const engineVal = document.getElementById('engine').value.trim();
+    const assignedVal = document.getElementById('assigned').value || new Date().toISOString().split("T")[0];
     const targetVal = document.getElementById('target').value;
     const completionVal = document.getElementById('completion').value;
     const statusVal = document.getElementById('status').value;
@@ -1399,7 +1415,7 @@ async function saveRecord() {
     const rec = {
         user: userVal,
         engine: engineVal,
-        assigned: new Date().toISOString().split("T")[0],
+        assigned: assignedVal,
         target: targetVal,
         completion: completionVal,
         status: statusVal,
@@ -1433,12 +1449,14 @@ async function saveInline(id) {
         alert("You are not authorized to edit this record.");
         return;
     }
+    const assignedVal = document.getElementById(`inline-assigned-${id}`).value;
     const completionVal = document.getElementById(`inline-completion-${id}`).value;
     const statusVal = document.getElementById(`inline-status-${id}`).value;
     const remarksVal = document.getElementById(`inline-remarks-${id}`).value;
     const driveUrlVal = document.getElementById(`inline-drive-${id}`).value.trim();
 
     await dbHelper.updateRecord(id, {
+        assigned: assignedVal,
         completion: completionVal,
         status: statusVal,
         remarks: remarksVal,
@@ -1514,6 +1532,11 @@ function resetForm() {
     document.getElementById('status').value = "Not Started";
     document.getElementById('remarks').value = "";
     document.getElementById('drive-url').value = "";
+    
+    // Reset Assigned Date to today
+    const today = new Date().toISOString().split("T")[0];
+    const assignedInput = document.getElementById('assigned');
+    if (assignedInput) assignedInput.value = today;
 }
 
 function showCustomConfirm(title, message, isDanger = true) {
