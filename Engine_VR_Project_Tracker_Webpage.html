@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Engine VR Project Integration Tracker</title>
+<!-- Firebase App and Firestore Compatibility SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<style>
+:root {
+    --primary: #0d6efd;
+    --primary-hover: #0b5ed7;
+    --dark: #0d2f5f;
+    --light-bg: #f5f2eb;
+    --text-main: #333;
+    --border: #ddd;
+    
+    --c-completed: #d9ead3;
+    --c-progress: #cfe2f3;
+    --c-blocked: #f4cccc;
+    --c-notstarted: #fff2cc;
+    
+    --t-completed: #274e13;
+    --t-progress: #0b5394;
+    --t-blocked: #990000;
+    --t-notstarted: #7f6000;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--light-bg);
+    margin: 0;
+    padding: 20px;
+    color: var(--text-main);
+}
+
+.container {
+    max-width: 1400px;
+    margin: auto;
+}
+
+/* Navigation Bar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    padding: 15px 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+    margin-bottom: 30px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-text {
+    font-weight: 800;
+    color: var(--dark);
+    font-size: 1.8rem;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+.brand-text span {
+    color: var(--primary);
+}
+
+.user-profile-pill {
+    display: flex;
+    align-items: center;
+    background: var(--light-bg);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 6px 6px 6px 14px;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--dark);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+}
+
+.user-info-text {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.user-info-text .username {
+    font-weight: 700;
+    color: var(--dark);
+    font-size: 0.9rem;
+    line-height: 1.2;
+}
+
+.user-info-text .user-role {
+    font-size: 0.75rem;
+    color: #777;
+    font-weight: 600;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.logout-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    padding: 0;
+}
+
+.logout-btn:hover {
+    background: #b02a37;
+    transform: scale(1.05);
+}
+
+.card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.card h2 {
+    color: var(--dark);
+    margin-top: 0;
+    border-bottom: 2px solid var(--light-bg);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.collapsible-header {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: opacity 0.2s;
+}
+
+.collapsible-header:hover {
+    opacity: 0.8;
+}
+
+/* User Management Desk Grid */
+.user-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.user-desk {
+    background: #f8f9fa;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.user-desk:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.user-desk-name {
+    font-weight: 600;
+    color: var(--dark);
+    font-size: 0.95rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 10px;
+}
+
+.btn-revoke-desk {
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.75rem;
+    padding: 0;
+    line-height: 1;
+    transition: background 0.2s;
+}
+
+.btn-revoke-desk:hover {
+    background: #b02a37;
+}
+
+/* Dashboard */
+.dashboard {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    flex: 1;
+    min-width: 150px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--dark);
+    border-left: 5px solid var(--dark);
+}
+
+.stat-card span {
+    display: block;
+    font-size: 2rem;
+    margin-top: 5px;
+}
+
+.stat-card.completed { border-color: #38761d; }
+.stat-card.progress { border-color: #0b5394; }
+.stat-card.blocked { border-color: #990000; }
+
+/* Form Grid */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    align-items: end;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.date-group label {
+    display: block;
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+    width: 100%;
+}
+
+button:hover {
+    background: var(--primary-hover);
+}
+
+.btn-delete { background: #dc3545; }
+.btn-delete:hover { background: #b02a37; }
+.btn-edit { background: #ffc107; color: #000; }
+.btn-edit:hover { background: #d39e00; }
+.btn-cancel { background: #6c757d; }
+.btn-cancel:hover { background: #5c636a; }
+
+/* Filters */
+.filter-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+/* Tables */
+.table-responsive {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+th {
+    background: var(--dark);
+    color: #fff;
+    padding: 12px;
+    text-align: left;
+}
+
+td {
+    padding: 10px;
+    border: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+tr:hover {
+    background-color: #f1f3f5;
+}
+
+.status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.85rem;
+    display: inline-block;
+    text-align: center;
+}
+
+.completed { background: var(--c-completed); color: var(--t-completed); }
+.progress { background: var(--c-progress); color: var(--t-progress); }
+.blocked { background: var(--c-blocked); color: var(--t-blocked); }
+.notstarted { background: var(--c-notstarted); color: var(--t-notstarted); }
+
+.action-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.action-buttons button {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    width: auto;
+}
+
+/* Accordions for User View */
+details {
+    background: #f8f9fa;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+summary {
+    padding: 15px;
+    background: var(--dark);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+summary::-webkit-details-marker {
+    display: none;
+}
+
+summary::after {
+    content: '▼';
+    font-size: 0.8rem;
+}
+
+details[open] summary::after {
+    content: '▲';
+}
+
+details .table-responsive {
+    padding: 15px;
+    background: #fff;
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+
+    <nav class="navbar">
+        <div class="brand">
+            <!-- Hexagonal geometric brand icon -->
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L20.7 7V17L12 22L3.3 17V7L12 2Z" stroke="var(--dark)" stroke-width="2.5" stroke-linejoin="round" fill="rgba(13, 110, 253, 0.05)"/>
+                <path d="M12 6L17 9.5V14.5L12 18L7 14.5V9.5L12 6Z" fill="var(--primary)"/>
+                <circle cx="12" cy="12" r="2.2" fill="white" />
+            </svg>
+            <h1 class="brand-text">ENGINE<span>VR</span><span style="font-weight: 400; color: #666; font-size: 1.2rem; margin-left: 10px;">| Project Tracker</span></h1>
+            <span id="db-status-badge" style="font-size: 0.75rem; font-weight: bold; padding: 4px 8px; border-radius: 12px; margin-left: 15px; display: inline-flex; align-items: center; gap: 5px;"></span>
+        </div>
+        <div id="user-info" class="user-profile-pill" style="display: none;">
+            <div class="user-avatar" id="user-avatar-char">-</div>
+            <div class="user-info-text">
+                <span class="username" id="display-username"></span>
+                <span class="user-role" id="display-role"></span>
+            </div>
+            <button class="logout-btn" onclick="logout()" title="Logout">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Dashboard stats -->
+    <div class="dashboard">
+        <div class="stat-card">Total Engines<span id="stat-total">0</span></div>
+        <div class="stat-card completed">Completed<span id="stat-completed">0</span></div>
+        <div class="stat-card progress">In Progress<span id="stat-progress">0</span></div>
+        <div class="stat-card blocked">Blocked<span id="stat-blocked">0</span></div>
+    </div>
+
+    <!-- User Management Panel (Admin Only) -->
+    <div class="card" id="user-management-card" style="display: none; border-left: 5px solid #4a148c;">
+        <h2 class="collapsible-header" onclick="toggleUserManagement()">
+            <span>Admin: User Login Management</span>
+            <span id="user-mgmt-toggle-icon" style="font-size: 0.9rem; transition: transform 0.2s;">▼</span>
+        </h2>
+        <div id="user-management-container">
+            <p style="font-size: 0.9rem; color: #666; margin-top: -10px; margin-bottom: 15px;">Create and manage User IDs that are allowed to log in.</p>
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; max-width: 500px;">
+                <input type="text" id="new-auth-user" placeholder="New User ID..." style="flex: 1;">
+                <button onclick="addAuthUser()" style="width: auto; background: #4a148c; white-space: nowrap;">Create Login User</button>
+            </div>
+            <div id="auth-users-grid" class="user-grid"></div>
+        </div>
+    </div>
+
+    <!-- Add Form -->
+    <div class="card form-card" id="add-form-card">
+        <h2>Add New Engine Assignment</h2>
+        <div class="form-grid">
+            
+            <div id="admin-user-selection" style="grid-column: 1 / -1; display: flex; gap: 20px; align-items: center; margin-bottom: 5px;">
+                <label style="font-weight: bold; cursor: pointer;"><input type="radio" name="user-mode" value="existing" checked onchange="toggleUserMode()"> Existing User</label>
+                <label style="font-weight: bold; cursor: pointer;"><input type="radio" name="user-mode" value="new" onchange="toggleUserMode()"> Create New User</label>
+            </div>
+            
+            <div id="existing-user-div">
+                <select id="existing-user">
+                    <option value="">Select a user...</option>
+                </select>
+            </div>
+            
+            <div id="new-user-div" style="display: none;">
+                <input id="new-user" type="text" placeholder="Enter new user name">
+            </div>
+
+            <div id="user-display-div" style="display: none; grid-column: 1 / -1; padding: 10px 0; font-weight: bold; color: var(--dark);">
+                Assigned User: <span id="user-display-name" style="color: var(--primary);"></span>
+            </div>
+            
+            <input id="engine" placeholder="Engine Name">
+            
+            <div class="date-group">
+                <label>Target Date</label>
+                <input id="target" type="date">
+            </div>
+
+            <div class="date-group">
+                <label>Completion Date</label>
+                <input id="completion" type="date">
+            </div>
+            
+            <select id="status">
+                <option>Not Started</option>
+                <option>In Progress</option>
+                <option>Completed</option>
+                <option>Blocked</option>
+            </select>
+            
+            <input id="remarks" placeholder="Remarks (Optional)">
+            
+            <div class="form-actions">
+                <button id="btn-save" onclick="saveRecord()">Add Record</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="card">
+        <div class="filter-container">
+            <input id="search-input" placeholder="Search by User or Engine..." oninput="render()">
+            <select id="filter-status" onchange="render()">
+                <option value="All">All Statuses</option>
+                <option>Not Started</option>
+                <option>In Progress</option>
+                <option>Completed</option>
+                <option>Blocked</option>
+            </select>
+        </div>
+
+        <h2 class="collapsible-header" onclick="toggleProjectSummary()">
+            <span>Project Summary</span>
+            <span id="summary-toggle-icon" style="font-size: 0.9rem; transition: transform 0.2s;">▼</span>
+        </h2>
+        <div class="table-responsive" id="summary-table-container">
+            <table id="summary">
+                <thead>
+                    <tr>
+                        <th>Assigned User</th>
+                        <th>Engine Name</th>
+                        <th>Date Assigned</th>
+                        <th>Target Date</th>
+                        <th>Completion Date</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- User Wise Tracking -->
+    <div class="card">
+        <h2>User Tracking (User-Wise View)</h2>
+        <p style="font-size: 0.9rem; color: #666; margin-top: -10px; margin-bottom: 15px;">Click on a user to expand and view their assigned engines.</p>
+        <div id="userSections"></div>
+    </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script>
+// Authentication Check
+if (sessionStorage.getItem('loggedIn') !== 'true') {
+    window.location.href = 'index.html';
+}
+
+const userRole = sessionStorage.getItem('role') || 'user';
+const userName = sessionStorage.getItem('username') || 'Unknown';
+
+// 1. Firebase Configuration - REPLACE WITH YOUR KEYS
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};
+
+// Initialize Firebase
+let db = null;
+if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+    try {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+    } catch (e) {
+        console.error("Firebase initialization failed:", e);
+    }
+}
+
+// 2. Unified Database Layer
+const dbHelper = {
+    async getUsers() {
+        if (db) {
+            try {
+                const snapshot = await db.collection('users').get();
+                return snapshot.docs.map(doc => doc.id);
+            } catch (e) {
+                console.error("Firestore read users failed, falling back to LocalStorage:", e);
+            }
+        }
+        const storedUsers = localStorage.getItem('engineTrackerUsers');
+        return storedUsers ? JSON.parse(storedUsers) : ["Alice Johnson", "Bob Smith", "Carol Williams"];
+    },
+
+    async addUser(username) {
+        if (db) {
+            try {
+                await db.collection('users').doc(username).set({ createdAt: new Date().toISOString() });
+                return;
+            } catch (e) {
+                console.error("Firestore add user failed, falling back to LocalStorage:", e);
+            }
+        }
+        const users = await this.getUsers();
+        if (!users.includes(username)) {
+            users.push(username);
+            localStorage.setItem('engineTrackerUsers', JSON.stringify(users));
+        }
+    },
+
+    async removeUser(username) {
+        if (db) {
+            try {
+                await db.collection('users').doc(username).delete();
+                return;
+            } catch (e) {
+                console.error("Firestore remove user failed, falling back to LocalStorage:", e);
+            }
+        }
+        let users = await this.getUsers();
+        users = users.filter(u => u !== username);
+        localStorage.setItem('engineTrackerUsers', JSON.stringify(users));
+    },
+
+    async getRecords() {
+        if (db) {
+            try {
+                const snapshot = await db.collection('engines').orderBy('createdAt', 'asc').get();
+                return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            } catch (e) {
+                console.error("Firestore read engines failed, falling back to LocalStorage:", e);
+            }
+        }
+        const storedData = localStorage.getItem('engineTrackerData');
+        return storedData ? JSON.parse(storedData) : [...sampleData];
+    },
+
+    async addRecord(record) {
+        if (db) {
+            try {
+                const docRef = db.collection('engines').doc();
+                const recordData = { ...record, id: docRef.id, createdAt: new Date().toISOString() };
+                await docRef.set(recordData);
+                return recordData;
+            } catch (e) {
+                console.error("Firestore add engine failed, falling back to LocalStorage:", e);
+            }
+        }
+        const records = await this.getRecords();
+        records.push(record);
+        localStorage.setItem('engineTrackerData', JSON.stringify(records));
+        return record;
+    },
+
+    async updateRecord(id, updates) {
+        if (db) {
+            try {
+                await db.collection('engines').doc(id).update(updates);
+                return;
+            } catch (e) {
+                console.error("Firestore update engine failed, falling back to LocalStorage:", e);
+            }
+        }
+        const records = await this.getRecords();
+        const index = records.findIndex(r => r.id === id);
+        if (index > -1) {
+            records[index] = { ...records[index], ...updates };
+            localStorage.setItem('engineTrackerData', JSON.stringify(records));
+        }
+    },
+
+    async deleteRecord(id) {
+        if (db) {
+            try {
+                await db.collection('engines').doc(id).delete();
+                return;
+            } catch (e) {
+                console.error("Firestore delete engine failed, falling back to LocalStorage:", e);
+            }
+        }
+        let records = await this.getRecords();
+        records = records.filter(r => r.id !== id);
+        localStorage.setItem('engineTrackerData', JSON.stringify(records));
+    }
+};
+
+let data = [];
+let editingId = null;
+let authUsers = [];
+
+document.addEventListener("DOMContentLoaded", async function() {
+    // Set Database Status Badge
+    const dbStatusBadge = document.getElementById('db-status-badge');
+    if (dbStatusBadge) {
+        if (db) {
+            dbStatusBadge.innerHTML = '<span style="width: 8px; height: 8px; background: #198754; border-radius: 50%;"></span> Cloud Sync Active';
+            dbStatusBadge.style.background = 'rgba(25, 135, 84, 0.1)';
+            dbStatusBadge.style.color = '#198754';
+        } else {
+            dbStatusBadge.innerHTML = '<span style="width: 8px; height: 8px; background: #ffc107; border-radius: 50%;"></span> Demo Mode (Local Storage)';
+            dbStatusBadge.style.background = 'rgba(255, 193, 7, 0.1)';
+            dbStatusBadge.style.color = '#b58100';
+        }
+    }
+
+    document.getElementById('user-info').style.display = 'flex';
+    document.getElementById('display-username').innerText = userName;
+    document.getElementById('display-role').innerText = userRole === 'admin' ? 'Admin' : 'User';
+    
+    // Set user avatar character
+    const avatarChar = userName.trim().charAt(0);
+    const avatarEl = document.getElementById('user-avatar-char');
+    if (avatarEl) avatarEl.innerText = avatarChar;
+    
+    if (userRole !== 'admin') {
+        const addForm = document.getElementById('add-form-card');
+        if(addForm) addForm.style.display = 'block';
+        
+        // Hide admin-specific fields in Add Form
+        const adminUserSel = document.getElementById('admin-user-selection');
+        if (adminUserSel) adminUserSel.style.display = 'none';
+        const existingDiv = document.getElementById('existing-user-div');
+        if (existingDiv) existingDiv.style.display = 'none';
+        const newDiv = document.getElementById('new-user-div');
+        if (newDiv) newDiv.style.display = 'none';
+        
+        // Show read-only user display
+        const displayDiv = document.getElementById('user-display-div');
+        if (displayDiv) displayDiv.style.display = 'block';
+        const displayName = document.getElementById('user-display-name');
+        if (displayName) displayName.innerText = userName;
+    } else {
+        const userMgmt = document.getElementById('user-management-card');
+        if(userMgmt) userMgmt.style.display = 'block';
+    }
+
+    await initData();
+});
+
+async function initData() {
+    authUsers = await dbHelper.getUsers();
+    data = await dbHelper.getRecords();
+    renderAuthUsers();
+    render();
+}
+
+function logout() {
+    sessionStorage.clear();
+    window.location.href = 'index.html';
+}
+
+// Initial Sample Data (used only if localStorage is empty)
+const sampleData = [
+    { id: "1", user: "Alice Johnson", engine: "Unreal Engine 5.3", assigned: "2024-05-01", target: "2024-05-31", completion: "2024-05-28", status: "Completed", remarks: "Integration completed and tested." },
+    { id: "2", user: "Bob Smith", engine: "Unity 2022 LTS", assigned: "2024-05-03", target: "2024-06-10", completion: "", status: "In Progress", remarks: "Core features integrated." },
+    { id: "3", user: "Carol Williams", engine: "CryEngine 5.11", assigned: "2024-05-06", target: "2024-06-20", completion: "", status: "In Progress", remarks: "Rendering pipeline in progress." }
+];
+
+function toggleUserMode() {
+    if (userRole !== 'admin') return;
+    const mode = document.querySelector('input[name="user-mode"]:checked').value;
+    if (mode === 'existing') {
+        document.getElementById('existing-user-div').style.display = 'block';
+        document.getElementById('new-user-div').style.display = 'none';
+    } else {
+        document.getElementById('existing-user-div').style.display = 'none';
+        document.getElementById('new-user-div').style.display = 'block';
+    }
+}
+
+function renderAuthUsers() {
+    const grid = document.getElementById("auth-users-grid");
+    if (!grid) return;
+    grid.innerHTML = "";
+    if (authUsers.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; color:#666; padding:10px;">No users authorized yet.</div>`;
+    } else {
+        authUsers.forEach(u => {
+            grid.innerHTML += `
+                <div class="user-desk">
+                    <span class="user-desk-name" title="${u}">${u}</span>
+                    <button class="btn-revoke-desk" onclick="removeAuthUser('${u}')" title="Revoke access">&times;</button>
+                </div>`;
+        });
+    }
+}
+
+async function addAuthUser() {
+    if (userRole !== 'admin') {
+        alert("Only admins can manage users.");
+        return;
+    }
+    const newUser = document.getElementById('new-auth-user').value.trim();
+    if (!newUser) return;
+    if (authUsers.includes(newUser)) {
+        alert("User already exists!");
+        return;
+    }
+    await dbHelper.addUser(newUser);
+    document.getElementById('new-auth-user').value = "";
+    authUsers = await dbHelper.getUsers();
+    renderAuthUsers();
+    updateUserList();
+}
+
+async function removeAuthUser(user) {
+    if (userRole !== 'admin') {
+        alert("Only admins can manage users.");
+        return;
+    }
+    if(confirm(`Revoke login access for ${user}?`)) {
+        await dbHelper.removeUser(user);
+        authUsers = await dbHelper.getUsers();
+        renderAuthUsers();
+        updateUserList();
+    }
+}
+
+// Helper for status CSS class
+function statusClass(s) {
+    if(s === "Completed") return "completed";
+    if(s === "Blocked") return "blocked";
+    if(s === "In Progress") return "progress";
+    return "notstarted";
+}
+
+// Update Dashboard Statistics
+function updateDashboard(filteredData) {
+    document.getElementById('stat-total').innerText = filteredData.length;
+    document.getElementById('stat-completed').innerText = filteredData.filter(d => d.status === 'Completed').length;
+    document.getElementById('stat-progress').innerText = filteredData.filter(d => d.status === 'In Progress').length;
+    document.getElementById('stat-blocked').innerText = filteredData.filter(d => d.status === 'Blocked').length;
+}
+
+// Update User Select Dropdown
+function updateUserList() {
+    const select = document.getElementById('existing-user');
+    const currentVal = select ? select.value : "";
+    if (select) {
+        select.innerHTML = '<option value="">Select a user...</option>' + authUsers.map(u => `<option value="${u}">${u}</option>`).join('');
+        if (authUsers.includes(currentVal)) select.value = currentVal;
+    }
+}
+
+// Main Render Function
+function render() {
+    const searchStr = document.getElementById('search-input').value.toLowerCase();
+    const filterStatus = document.getElementById('filter-status').value;
+
+    // Apply Filters
+    const filteredData = data.filter(d => {
+        const matchesSearch = d.user.toLowerCase().includes(searchStr) || d.engine.toLowerCase().includes(searchStr);
+        const matchesStatus = filterStatus === 'All' || d.status === filterStatus;
+        return matchesSearch && matchesStatus;
+    });
+
+    updateDashboard(filteredData);
+    updateUserList();
+
+    // Render Summary Table
+    const tbody = document.querySelector("#summary tbody");
+    tbody.innerHTML = "";
+    
+    if (filteredData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 20px;">No records found.</td></tr>`;
+    } else {
+        filteredData.forEach(d => {
+            if (d.id === editingId) {
+                tbody.innerHTML += `<tr>
+                    <td>${d.user}</td>
+                    <td>${d.engine}</td>
+                    <td>${d.assigned}</td>
+                    <td>${d.target}</td>
+                    <td><input type="date" id="inline-completion-${d.id}" value="${d.completion}"></td>
+                    <td>
+                        <select id="inline-status-${d.id}">
+                            <option ${d.status === 'Not Started' ? 'selected' : ''}>Not Started</option>
+                            <option ${d.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                            <option ${d.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                            <option ${d.status === 'Blocked' ? 'selected' : ''}>Blocked</option>
+                        </select>
+                    </td>
+                    <td><input type="text" id="inline-remarks-${d.id}" value="${d.remarks || ""}"></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-edit" style="background:#198754; color:white;" onclick="saveInline('${d.id}')">Save</button>
+                            <button class="btn-cancel" onclick="cancelInline()">Cancel</button>
+                        </div>
+                    </td>
+                </tr>`;
+            } else {
+                tbody.innerHTML += `<tr>
+                    <td>${d.user}</td>
+                    <td>${d.engine}</td>
+                    <td>${d.assigned}</td>
+                    <td>${d.target}</td>
+                    <td>${d.completion}</td>
+                    <td><span class="status ${statusClass(d.status)}">${d.status}</span></td>
+                    <td>${d.remarks || ""}</td>
+                    <td>
+                        <div class="action-buttons">
+                            ${(userRole === 'admin' || d.user === userName) ? `<button class="btn-edit" onclick="editRecord('${d.id}')">Edit</button>` : ''}
+                            ${userRole === 'admin' ? `<button class="btn-delete" onclick="deleteRecord('${d.id}')">Del</button>` : ''}
+                        </div>
+                    </td>
+                </tr>`;
+            }
+        });
+    }
+
+    // Render User-Wise Accordions
+    const usersObj = {};
+    filteredData.forEach(d => {
+        if(!usersObj[d.user]) usersObj[d.user] = [];
+        usersObj[d.user].push(d);
+    });
+
+    let html = "";
+    for(const user in usersObj) {
+        const userEngines = usersObj[user];
+        const completedCount = userEngines.filter(e => e.status === 'Completed').length;
+        const totalCount = userEngines.length;
+
+        html += `<details>
+            <summary>
+                <span>${user}</span>
+                <span style="font-size: 0.85rem; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px;">
+                    ${completedCount} / ${totalCount} Completed
+                </span>
+            </summary>
+            <div class='table-responsive'>
+                <table>
+                    <tr>
+                        <th>Engine Name</th>
+                        <th>Date Assigned</th>
+                        <th>Target Date</th>
+                        <th>Completion Date</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                    </tr>`;
+        
+        userEngines.forEach(r => {
+            html += `<tr>
+                <td>${r.engine}</td>
+                <td>${r.assigned}</td>
+                <td>${r.target}</td>
+                <td>${r.completion}</td>
+                <td><span class="status ${statusClass(r.status)}">${r.status}</span></td>
+                <td>${r.remarks || ""}</td>
+            </tr>`;
+        });
+        html += `</table></div></details>`;
+    }
+    
+    if(Object.keys(usersObj).length === 0) {
+        html = "<p style='text-align:center; color:#666;'>No data available.</p>";
+    }
+    
+    document.getElementById("userSections").innerHTML = html;
+}
+
+// Add Record
+async function saveRecord() {
+    let userVal = "";
+    if (userRole === 'admin') {
+        const mode = document.querySelector('input[name="user-mode"]:checked').value;
+        if (mode === 'existing') {
+            userVal = document.getElementById('existing-user').value.trim();
+        } else {
+            userVal = document.getElementById('new-user').value.trim();
+            if (userVal && !authUsers.includes(userVal)) {
+                await dbHelper.addUser(userVal);
+                authUsers = await dbHelper.getUsers();
+                renderAuthUsers();
+            }
+        }
+    } else {
+        userVal = userName;
+    }
+    
+    const engineVal = document.getElementById('engine').value.trim();
+    const targetVal = document.getElementById('target').value;
+    const completionVal = document.getElementById('completion').value;
+    const statusVal = document.getElementById('status').value;
+    const remarksVal = document.getElementById('remarks').value.trim();
+
+    if (!userVal || !engineVal) {
+        alert("Assigned User and Engine Name are required!");
+        return;
+    }
+
+    const rec = {
+        user: userVal,
+        engine: engineVal,
+        assigned: new Date().toISOString().split("T")[0],
+        target: targetVal,
+        completion: completionVal,
+        status: statusVal,
+        remarks: remarksVal
+    };
+    await dbHelper.addRecord(rec);
+    data = await dbHelper.getRecords();
+
+    resetForm();
+    render();
+}
+
+// Enable Inline Edit
+function editRecord(id) {
+    const record = data.find(d => d.id === id);
+    if (!record) return;
+    if (userRole !== 'admin' && record.user !== userName) {
+        alert("You are not authorized to edit this record.");
+        return;
+    }
+    editingId = id;
+    render();
+}
+
+// Save Inline Edit
+async function saveInline(id) {
+    const record = data.find(d => d.id === id);
+    if (!record) return;
+    if (userRole !== 'admin' && record.user !== userName) {
+        alert("You are not authorized to edit this record.");
+        return;
+    }
+    const completionVal = document.getElementById(`inline-completion-${id}`).value;
+    const statusVal = document.getElementById(`inline-status-${id}`).value;
+    const remarksVal = document.getElementById(`inline-remarks-${id}`).value;
+
+    await dbHelper.updateRecord(id, {
+        completion: completionVal,
+        status: statusVal,
+        remarks: remarksVal
+    });
+    
+    editingId = null;
+    data = await dbHelper.getRecords();
+    render();
+}
+
+// Cancel Inline Edit
+function cancelInline() {
+    editingId = null;
+    render();
+}
+
+// Delete Record
+async function deleteRecord(id) {
+    if (userRole !== 'admin') {
+        alert("Only admins can delete records.");
+        return;
+    }
+    if (confirm("Are you sure you want to delete this assignment?")) {
+        await dbHelper.deleteRecord(id);
+        data = await dbHelper.getRecords();
+        render();
+    }
+}
+
+// Toggle User Management
+function toggleUserManagement() {
+    const container = document.getElementById('user-management-container');
+    const icon = document.getElementById('user-mgmt-toggle-icon');
+    if (container.style.display === 'none') {
+        container.style.display = 'block';
+        icon.style.transform = 'rotate(0deg)';
+    } else {
+        container.style.display = 'none';
+        icon.style.transform = 'rotate(-90deg)';
+    }
+}
+
+// Toggle Project Summary Table
+function toggleProjectSummary() {
+    const container = document.getElementById('summary-table-container');
+    const icon = document.getElementById('summary-toggle-icon');
+    if (container.style.display === 'none') {
+        container.style.display = 'block';
+        icon.style.transform = 'rotate(0deg)';
+    } else {
+        container.style.display = 'none';
+        icon.style.transform = 'rotate(-90deg)';
+    }
+}
+
+// Reset Form to Add mode
+function resetForm() {
+    document.querySelector('input[name="user-mode"][value="existing"]').checked = true;
+    toggleUserMode();
+    document.getElementById('existing-user').value = "";
+    document.getElementById('new-user').value = "";
+    document.getElementById('engine').value = "";
+    document.getElementById('target').value = "";
+    document.getElementById('completion').value = "";
+    document.getElementById('status').value = "Not Started";
+    document.getElementById('remarks').value = "";
+}
+
+// Initialize
+initData();
+</script>
+</body>
+</html>

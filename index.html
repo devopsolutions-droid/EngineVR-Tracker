@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Engine VR Tracker - Login</title>
+<!-- Firebase App and Firestore Compatibility SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<style>
+    :root {
+        --primary: #0d6efd;
+        --primary-hover: #0b5ed7;
+        --dark: #0d2f5f;
+        --light-bg: #f5f2eb;
+        --text-main: #333;
+        --border: rgba(13, 47, 95, 0.08);
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f2eb; /* Warm premium beige */
+        background-image: 
+            linear-gradient(rgba(13, 47, 95, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(13, 47, 95, 0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+        animation: moveGrid 16s linear infinite;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: var(--text-main);
+    }
+
+    @keyframes moveGrid {
+        from { background-position: 0 0; }
+        to { background-position: 40px 40px; }
+    }
+
+    .login-box {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 15px 35px rgba(13, 47, 95, 0.08), 0 5px 15px rgba(0, 0, 0, 0.02);
+        padding: 40px 35px;
+        width: 400px;
+        box-sizing: border-box;
+        border: 1px solid var(--border);
+        border-top: 5px solid var(--dark);
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .brand-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 5px;
+    }
+
+    .brand-container h1 {
+        color: var(--dark);
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+    }
+
+    .brand-container h1 span {
+        color: var(--primary);
+    }
+
+    .login-header p {
+        margin: 0;
+        color: #777;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    /* Tabs */
+    .tabs {
+        display: flex;
+        margin-bottom: 25px;
+        background: var(--light-bg);
+        border-radius: 10px;
+        padding: 4px;
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .tab {
+        flex: 1;
+        text-align: center;
+        padding: 12px;
+        cursor: pointer;
+        border-radius: 8px;
+        font-weight: bold;
+        color: #555;
+        font-size: 0.9rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        user-select: none;
+    }
+
+    .tab.active {
+        background: var(--dark);
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(13, 47, 95, 0.15);
+    }
+
+    /* Inputs */
+    .input-group {
+        margin-bottom: 22px;
+        text-align: left;
+    }
+
+    .input-group label {
+        display: block;
+        font-size: 0.85rem;
+        color: #444;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 12px 14px;
+        background: #ffffff;
+        border: 1.5px solid #dcdfe6;
+        border-radius: 8px;
+        color: var(--text-main);
+        font-size: 0.95rem;
+        outline: none;
+        box-sizing: border-box;
+        font-family: inherit;
+        transition: all 0.2s ease;
+    }
+
+    .input-group input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.12);
+    }
+
+    /* Button */
+    .btn-login {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, var(--primary) 0%, #0d5dd6 100%);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+    }
+
+    .btn-login:hover {
+        background: linear-gradient(135deg, var(--primary-hover) 0%, #0a52be 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(13, 110, 253, 0.25);
+    }
+
+    .btn-login:active {
+        transform: translateY(0);
+    }
+
+    .error-msg {
+        color: #dc3545;
+        font-size: 0.85rem;
+        text-align: center;
+        margin-top: -12px;
+        margin-bottom: 18px;
+        display: none;
+        font-weight: 600;
+        background: rgba(220, 53, 69, 0.05);
+        border: 1px solid rgba(220, 53, 69, 0.1);
+        padding: 8px;
+        border-radius: 6px;
+    }
+</style>
+</head>
+<body>
+
+<div class="login-box">
+    <div class="login-header">
+        <div class="brand-container">
+            <!-- Modern hexagonal geometric brand icon -->
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L20.7 7V17L12 22L3.3 17V7L12 2Z" stroke="var(--dark)" stroke-width="2.5" stroke-linejoin="round" fill="rgba(13, 110, 253, 0.05)"/>
+                <path d="M12 6L17 9.5V14.5L12 18L7 14.5V9.5L12 6Z" fill="var(--primary)"/>
+                <circle cx="12" cy="12" r="2.2" fill="white" />
+            </svg>
+            <h1>ENGINE<span>VR</span></h1>
+        </div>
+        <p>Project Tracker Portal</p>
+    </div>
+    
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('user')" id="tab-user">User Login</div>
+        <div class="tab" onclick="switchTab('admin')" id="tab-admin">Admin Login</div>
+    </div>
+
+    <div id="error" class="error-msg">Invalid Credentials</div>
+
+    <div class="input-group">
+        <label id="userid-label" for="userid">User ID</label>
+        <input type="text" id="userid" placeholder="Enter your User ID" autocomplete="off">
+    </div>
+
+    <div class="input-group" id="pass-group" style="display: none;">
+        <label for="pass">Password</label>
+        <input type="password" id="pass" placeholder="Enter Admin Password">
+    </div>
+
+    <button class="btn-login" onclick="login()">Enter Dashboard</button>
+</div>
+
+<script>
+    // 1. Session check (auto-bypass login if already logged in)
+    if (sessionStorage.getItem('loggedIn') === 'true') {
+        window.location.href = 'Engine_VR_Project_Tracker_Webpage.html';
+    }
+
+    // 2. Firebase Configuration - REPLACE WITH YOUR KEYS
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+
+    // Initialize Firebase
+    let db = null;
+    if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+        } catch (e) {
+            console.error("Firebase initialization failed:", e);
+        }
+    }
+
+    // 3. Unified Database Layer
+    const dbHelper = {
+        async getUsers() {
+            if (db) {
+                try {
+                    const snapshot = await db.collection('users').get();
+                    return snapshot.docs.map(doc => doc.id);
+                } catch (e) {
+                    console.error("Firestore read failed, falling back to LocalStorage:", e);
+                }
+            }
+            const storedUsers = localStorage.getItem('engineTrackerUsers');
+            return storedUsers ? JSON.parse(storedUsers) : ["Alice Johnson", "Bob Smith", "Carol Williams"];
+        }
+    };
+
+    let currentRole = 'user';
+
+    function switchTab(role) {
+        currentRole = role;
+        document.getElementById('error').style.display = 'none';
+        document.getElementById('userid').value = '';
+        document.getElementById('pass').value = '';
+
+        if (role === 'admin') {
+            document.getElementById('tab-admin').classList.add('active');
+            document.getElementById('tab-user').classList.remove('active');
+            document.getElementById('pass-group').style.display = 'block';
+            document.getElementById('userid-label').innerText = 'Admin User ID';
+            document.getElementById('userid').placeholder = 'Enter Admin User ID';
+        } else {
+            document.getElementById('tab-user').classList.add('active');
+            document.getElementById('tab-admin').classList.remove('active');
+            document.getElementById('pass-group').style.display = 'none';
+            document.getElementById('userid-label').innerText = 'User ID';
+            document.getElementById('userid').placeholder = 'Enter your User ID';
+        }
+    }
+
+    async function login() {
+        const userid = document.getElementById('userid').value.trim();
+        const pass = document.getElementById('pass').value;
+        const errorEl = document.getElementById('error');
+
+        if (!userid) {
+            errorEl.innerText = "Please enter your User ID";
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        if (currentRole === 'admin') {
+            if (userid === 'adminvolga' && pass === 'enginevradmin') {
+                sessionStorage.setItem('loggedIn', 'true');
+                sessionStorage.setItem('role', 'admin');
+                sessionStorage.setItem('username', userid);
+                window.location.href = 'Engine_VR_Project_Tracker_Webpage.html';
+            } else {
+                errorEl.innerText = "Invalid Admin Credentials";
+                errorEl.style.display = 'block';
+            }
+        } else {
+            // General User Login
+            try {
+                const authUsers = await dbHelper.getUsers();
+                if (authUsers.includes(userid)) {
+                    sessionStorage.setItem('loggedIn', 'true');
+                    sessionStorage.setItem('role', 'user');
+                    sessionStorage.setItem('username', userid);
+                    window.location.href = 'Engine_VR_Project_Tracker_Webpage.html';
+                } else {
+                    errorEl.innerText = "Invalid User ID. Please contact an Admin.";
+                    errorEl.style.display = 'block';
+                }
+            } catch (e) {
+                console.error("Login verification failed:", e);
+                errorEl.innerText = "Login error. Please try again.";
+                errorEl.style.display = 'block';
+            }
+        }
+    }
+
+    // Allow pressing Enter to login
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            login();
+        }
+    });
+</script>
+
+</body>
+</html>
