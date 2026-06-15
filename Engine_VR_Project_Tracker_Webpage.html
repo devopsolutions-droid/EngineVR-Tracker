@@ -1103,6 +1103,39 @@ details .table-responsive {
         margin-top: 5px;
     }
 }
+/* Add Record Neumorphic Button */ 
+.neumorphic-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  cursor: pointer;
+  width: 150px;
+  height: 50px;
+  background-image: linear-gradient(to top, #D8D9DB 0%, #fff 80%, #FDFDFD 100%);
+  border-radius: 30px;
+  border: 1px solid #8F9092;
+  transition: all 0.2s ease;
+  font-family: "Source Sans Pro", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #606060;
+  text-shadow: 0 1px #fff;
+  margin: 0 auto;
+}
+
+.neumorphic-btn:hover {
+  background: linear-gradient(to top, #D8D9DB 0%, #fff 80%, #FDFDFD 100%);
+  box-shadow: 0 4px 3px 1px #FCFCFC, 0 6px 8px #D6D7D9, 0 -4px 4px #CECFD1, 0 -6px 4px #FEFEFE, inset 0 0 3px 3px #CECFD1;
+}
+
+.neumorphic-btn:active {
+  box-shadow: 0 4px 3px 1px #FCFCFC, 0 6px 8px #D6D7D9, 0 -4px 4px #CECFD1, 0 -6px 4px #FEFEFE, inset 0 0 5px 3px #999, inset 0 0 30px #aaa;
+}
+
+.neumorphic-btn:focus {
+  box-shadow: 0 4px 3px 1px #FCFCFC, 0 6px 8px #D6D7D9, 0 -4px 4px #CECFD1, 0 -6px 4px #FEFEFE, inset 0 0 5px 3px #999, inset 0 0 30px #aaa;
+}
 </style>
 </head>
 <body>
@@ -1239,7 +1272,9 @@ details .table-responsive {
             <input id="drive-url" type="url" placeholder="Drive URL (Optional)" autocomplete="off">
             
             <div class="form-actions">
-                <button id="btn-save" onclick="saveRecord()">Add Record</button>
+                <button id="btn-save" class="neumorphic-btn" onclick="saveRecord()">
+                    Add Record
+                </button>
             </div>
         </div>
     </div>
@@ -1535,9 +1570,18 @@ async function initData() {
     render();
 }
 
-function logout() {
-    sessionStorage.clear();
-    window.location.href = 'index.html';
+async function logout() {
+    const confirmed = await showCustomConfirm(
+        "Logout Confirmation",
+        "Are you sure you want to log out of the Engine VR Project Integration Tracker?",
+        false,
+        "Logout",
+        false
+    );
+    if (confirmed) {
+        sessionStorage.clear();
+        window.location.href = 'index.html';
+    }
 }
 
 // Initial Sample Data (used only if localStorage is empty)
@@ -1598,7 +1642,7 @@ async function saveDisplayName(userId) {
     const input = document.getElementById(`user-edit-input-${userId}`);
     if (!input) return;
     const newName = input.value.trim();
-    if (!newName) { alert('Display Name cannot be empty.'); return; }
+    if (!newName) { await showCustomAlert('Validation Error', 'Display Name cannot be empty.', true); return; }
     await dbHelper.updateUserDisplayName(userId, newName);
     authUsers = await dbHelper.getUsers();
     renderAuthUsers();
@@ -1607,17 +1651,17 @@ async function saveDisplayName(userId) {
 
 async function addAuthUser() {
     if (userRole !== 'admin') {
-        alert("Only admins can manage users.");
+        await showCustomAlert("Authorization Error", "Only admins can manage users.", true);
         return;
     }
     const newUserId = document.getElementById('new-auth-user').value.trim();
     const newDisplayName = document.getElementById('new-auth-display').value.trim();
     if (!newUserId || !newDisplayName) {
-        alert("Please enter both a User ID and a Display Name.");
+        await showCustomAlert("Validation Error", "Please enter both a User ID and a Display Name.", true);
         return;
     }
     if (authUsers.find(u => u.id === newUserId)) {
-        alert("A user with that User ID already exists!");
+        await showCustomAlert("Validation Error", "A user with that User ID already exists!", true);
         return;
     }
     await dbHelper.addUser(newUserId, newDisplayName);
@@ -1630,7 +1674,7 @@ async function addAuthUser() {
 
 async function removeAuthUser(userId) {
     if (userRole !== 'admin') {
-        alert("Only admins can manage users.");
+        await showCustomAlert("Authorization Error", "Only admins can manage users.", true);
         return;
     }
     const user = authUsers.find(u => u.id === userId);
@@ -1967,7 +2011,7 @@ async function saveRecord() {
     const driveUrlVal = document.getElementById('drive-url').value.trim();
 
     if (!userVal || !engineVal) {
-        alert("Assigned User and Engine Name are required!");
+        await showCustomAlert("Validation Error", "Assigned User and Engine Name are required!", true);
         return;
     }
 
@@ -1989,11 +2033,11 @@ async function saveRecord() {
 }
 
 // Enable Inline Edit
-function editRecord(id) {
+async function editRecord(id) {
     const record = data.find(d => d.id === id);
     if (!record) return;
     if (userRole !== 'admin' && record.user !== userName) {
-        alert("You are not authorized to edit this record.");
+        await showCustomAlert("Authorization Error", "You are not authorized to edit this record.", true);
         return;
     }
     editingId = id;
@@ -2005,7 +2049,7 @@ async function saveInline(id) {
     const record = data.find(d => d.id === id);
     if (!record) return;
     if (userRole !== 'admin' && record.user !== userName) {
-        alert("You are not authorized to edit this record.");
+        await showCustomAlert("Authorization Error", "You are not authorized to edit this record.", true);
         return;
     }
     const assignedVal = document.getElementById(`inline-assigned-${id}`).value;
@@ -2038,7 +2082,7 @@ function cancelInline() {
 // Delete Record
 async function deleteRecord(id) {
     if (userRole !== 'admin') {
-        alert("Only admins can delete records.");
+        await showCustomAlert("Authorization Error", "Only admins can delete records.", true);
         return;
     }
     const record = data.find(d => d.id === id);
@@ -2100,7 +2144,7 @@ function resetForm() {
     if (assignedInput) assignedInput.value = today;
 }
 
-function showCustomConfirm(title, message, isDanger = true) {
+function showCustomConfirm(title, message, isDanger = true, okText = null, bannerText = null) {
     return new Promise((resolve) => {
         const modal = document.getElementById('custom-confirm-modal');
         const titleEl = document.getElementById('confirm-title');
@@ -2110,24 +2154,46 @@ function showCustomConfirm(title, message, isDanger = true) {
         const iconEl = document.querySelector('.modal-icon');
 
         titleEl.innerText = title;
+        cancelBtn.style.display = ''; // Ensure cancel button is visible
+
+        let bannerHTML = '';
+        if (bannerText !== false) {
+            const finalBannerText = bannerText || (isDanger ? "This action is permanent and cannot be undone." : "This will disable their credentials. You can re-authorize them at any time.");
+            if (isDanger) {
+                bannerHTML = `
+                    <div class="modal-warning-banner">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        <span>${finalBannerText}</span>
+                    </div>
+                `;
+            } else {
+                bannerHTML = `
+                    <div class="modal-info-banner">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <span>${finalBannerText}</span>
+                    </div>
+                `;
+            }
+        }
+
+        msgEl.innerHTML = `
+            <div style="font-size: 0.95rem; color: #4b5563; line-height: 1.5;">
+                ${message}
+            </div>
+            ${bannerHTML}
+        `;
 
         if (isDanger) {
-            msgEl.innerHTML = `
-                <div style="font-size: 0.95rem; color: #4b5563; line-height: 1.5;">
-                    ${message}
-                </div>
-                <div class="modal-warning-banner">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                        <line x1="12" y1="9" x2="12" y2="13"></line>
-                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                    </svg>
-                    <span>This action is permanent and cannot be undone.</span>
-                </div>
-            `;
-            
             okBtn.className = "modal-btn btn-danger";
-            okBtn.innerText = "Delete";
+            okBtn.innerText = okText || "Delete";
             okBtn.style.background = "#dc3545";
             iconEl.style.background = "rgba(220, 53, 69, 0.1)";
             iconEl.style.color = "#dc3545";
@@ -2139,32 +2205,28 @@ function showCustomConfirm(title, message, isDanger = true) {
                 </svg>
             `;
         } else {
-            msgEl.innerHTML = `
-                <div style="font-size: 0.95rem; color: #4b5563; line-height: 1.5;">
-                    ${message}
-                </div>
-                <div class="modal-info-banner">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="16" x2="12" y2="12"></line>
-                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                    </svg>
-                    <span>This will disable their credentials. You can re-authorize them at any time.</span>
-                </div>
-            `;
-            
             okBtn.className = "modal-btn";
             okBtn.style.background = "var(--primary)";
             okBtn.style.color = "#ffffff";
-            okBtn.innerText = "Revoke";
+            okBtn.innerText = okText || "Revoke";
             iconEl.style.background = "rgba(13, 110, 253, 0.1)";
             iconEl.style.color = "var(--primary)";
-            iconEl.innerHTML = `
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-                    <line x1="12" y1="2" x2="12" y2="12"></line>
-                </svg>
-            `;
+            if (okText === "Logout") {
+                iconEl.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                `;
+            } else {
+                iconEl.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                        <line x1="12" y1="2" x2="12" y2="12"></line>
+                    </svg>
+                `;
+            }
         }
 
         modal.style.display = 'flex';
@@ -2183,6 +2245,75 @@ function showCustomConfirm(title, message, isDanger = true) {
         cancelBtn.onclick = () => {
             cleanup();
             resolve(false);
+        };
+    });
+}
+
+function showCustomAlert(title, message, isDanger = true) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('custom-confirm-modal');
+        const titleEl = document.getElementById('confirm-title');
+        const msgEl = document.getElementById('confirm-message');
+        const okBtn = document.getElementById('confirm-ok-btn');
+        const cancelBtn = document.getElementById('confirm-cancel-btn');
+        const iconEl = document.querySelector('.modal-icon');
+
+        titleEl.innerText = title;
+        cancelBtn.style.display = 'none'; // Hide cancel button for alerts
+
+        if (isDanger) {
+            msgEl.innerHTML = `
+                <div style="font-size: 0.95rem; color: #4b5563; line-height: 1.5;">
+                    ${message}
+                </div>
+            `;
+            
+            okBtn.className = "modal-btn btn-danger";
+            okBtn.innerText = "OK";
+            okBtn.style.background = "#dc3545";
+            okBtn.style.color = "#ffffff";
+            iconEl.style.background = "rgba(220, 53, 69, 0.1)";
+            iconEl.style.color = "#dc3545";
+            iconEl.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+            `;
+        } else {
+            msgEl.innerHTML = `
+                <div style="font-size: 0.95rem; color: #4b5563; line-height: 1.5;">
+                    ${message}
+                </div>
+            `;
+            
+            okBtn.className = "modal-btn";
+            okBtn.style.background = "var(--primary)";
+            okBtn.style.color = "#ffffff";
+            okBtn.innerText = "OK";
+            iconEl.style.background = "rgba(13, 110, 253, 0.1)";
+            iconEl.style.color = "var(--primary)";
+            iconEl.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+            `;
+        }
+
+        modal.style.display = 'flex';
+
+        function cleanup() {
+            modal.style.display = 'none';
+            cancelBtn.style.display = ''; // Restore default display
+            okBtn.onclick = null;
+        }
+
+        okBtn.onclick = () => {
+            cleanup();
+            resolve();
         };
     });
 }
