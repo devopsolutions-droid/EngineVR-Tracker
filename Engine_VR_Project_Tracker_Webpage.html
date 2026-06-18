@@ -700,8 +700,8 @@ tr:hover {
 .stepper-steps {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    width: 100%;
+    justify-content: center;
+    width: auto;
     position: relative;
 }
 
@@ -753,10 +753,12 @@ tr:hover {
 }
 
 .stepper-line {
-    flex-grow: 1;
+    width: 36px;
+    flex-grow: 0;
+    flex-shrink: 1;
     height: 2px;
     background: #E5E7EB;
-    min-width: 10px;
+    min-width: 12px;
     margin: 0 -2px;
     position: relative;
     z-index: 1;
