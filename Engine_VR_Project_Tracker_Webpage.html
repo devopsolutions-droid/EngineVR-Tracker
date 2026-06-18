@@ -19,12 +19,10 @@
     
     --c-completed: #d9ead3;
     --c-progress: #cfe2f3;
-    --c-blocked: #f4cccc;
     --c-notstarted: #fff2cc;
     
     --t-completed: #274e13;
     --t-progress: #0b5394;
-    --t-blocked: #990000;
     --t-notstarted: #7f6000;
 }
 
@@ -320,9 +318,34 @@ body {
 .stat-card.progress .stat-decoration { background: #0d6efd; }
 .stat-card.progress { border-bottom: 4px solid #0d6efd; }
 
-.stat-card.blocked .stat-icon-wrapper { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
-.stat-card.blocked .stat-decoration { background: #dc3545; }
-.stat-card.blocked { border-bottom: 4px solid #dc3545; }
+.stat-card.conflicts.no-conflict {
+    border-bottom: 4px solid #198754;
+}
+.stat-card.conflicts.no-conflict .stat-icon-wrapper {
+    background: rgba(25, 135, 84, 0.1);
+    color: #198754;
+}
+.stat-card.conflicts.no-conflict .stat-decoration {
+    background: #198754;
+}
+
+.stat-card.conflicts.has-conflict {
+    border-bottom: 4px solid #dc3545;
+    animation: pulseRedBorder 2.5s infinite;
+}
+.stat-card.conflicts.has-conflict .stat-icon-wrapper {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+.stat-card.conflicts.has-conflict .stat-decoration {
+    background: #dc3545;
+}
+
+@keyframes pulseRedBorder {
+    0% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); }
+    50% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.2); }
+    100% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); }
+}
 
 /* Form Grid */
 .form-grid {
@@ -544,7 +567,6 @@ tr:hover {
 
 .completed { background: var(--c-completed); color: var(--t-completed); }
 .progress { background: var(--c-progress); color: var(--t-progress); }
-.blocked { background: var(--c-blocked); color: var(--t-blocked); }
 .notstarted { background: var(--c-notstarted); color: var(--t-notstarted); }
 
 .action-buttons {
@@ -746,9 +768,50 @@ details[open] .accordion-chevron {
     transform: rotate(180deg);
 }
 
-details .table-responsive {
-    padding: 16px;
+.accordion-table-container {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 12px 20px 20px 20px;
     background: #fff;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.02);
+}
+
+.accordion-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+    min-width: 900px;
+}
+
+.accordion-table th {
+    background: var(--dark);
+    color: #fff;
+    padding: 10px 12px;
+    font-weight: 700;
+    text-align: left;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.accordion-table td {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    color: #4b5563;
+}
+
+/* Fix table borders inside the rounded container */
+.accordion-table th:first-child, .accordion-table td:first-child { border-left: none; }
+.accordion-table th:last-child, .accordion-table td:last-child { border-right: none; }
+.accordion-table tr:first-child th { border-top: none; }
+.accordion-table tr:last-child td { border-bottom: none; }
+
+.accordion-table tr:nth-child(even) {
+    background-color: #fcfbf9;
+}
+.accordion-table tr:hover {
+    background-color: #f7f5f0;
 }
 
 .drive-link-badge {
@@ -1090,8 +1153,8 @@ details .table-responsive {
         font-size: 0.95rem;
     }
     
-    details .table-responsive {
-        padding: 10px 5px;
+    .accordion-table-container {
+        margin: 10px 8px 12px 8px;
     }
     
     .modal-content {
@@ -1199,13 +1262,19 @@ details .table-responsive {
             <div class="stat-value" id="stat-progress">0</div>
             <div class="stat-decoration"></div>
         </div>
-        
-        <div class="stat-card blocked">
+
+        <div class="stat-card conflicts no-conflict" id="stat-conflict-card" onclick="openConflictModal()" style="cursor: pointer;">
             <div class="stat-header">
-                <div class="stat-icon-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div>
-                <div class="stat-title">Blocked</div>
+                <div class="stat-icon-wrapper">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </div>
+                <div class="stat-title">Conflicts</div>
             </div>
-            <div class="stat-value" id="stat-blocked">0</div>
+            <div class="stat-value" id="stat-conflict-value">0</div>
             <div class="stat-decoration"></div>
         </div>
     </div>
@@ -1263,7 +1332,6 @@ details .table-responsive {
                 <option>Not Started</option>
                 <option>In Progress</option>
                 <option>Completed</option>
-                <option>Blocked</option>
             </select>
             
             <input id="remarks" placeholder="Remarks (Optional)">
@@ -1286,7 +1354,6 @@ details .table-responsive {
                 <option>Not Started</option>
                 <option>In Progress</option>
                 <option>Completed</option>
-                <option>Blocked</option>
             </select>
         </div>
 
@@ -1322,10 +1389,38 @@ details .table-responsive {
         <div id="userSections"></div>
     </div>
 
+
     <footer style="margin-top: 40px; text-align: center; padding: 20px 0; font-size: 0.85rem; color: #777; border-top: 1px solid var(--border);">
         &copy; 2026 Volga Infosys Private Limited. All rights reserved. &bull; Engine VR Project Integration Tracker
     </footer>
 
+</div>
+
+<!-- Custom Conflict Details Modal -->
+<div id="conflict-details-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="width: 500px; max-width: 95%;">
+        <div style="display: flex; gap: 16px; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 15px;">
+            <div style="background: rgba(220, 53, 69, 0.1); color: #dc3545; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+            </div>
+            <div style="flex: 1;">
+                <h3 style="margin: 0; color: var(--dark); font-size: 1.25rem; font-weight: 700; letter-spacing: 0.5px;">Engine Conflicts</h3>
+                <p style="margin: 3px 0 0; font-size: 0.85rem; color: #666; font-weight: 500;">Engines assigned to more than one active user.</p>
+            </div>
+        </div>
+        
+        <div id="conflict-modal-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 350px; overflow-y: auto; padding-right: 4px;">
+            <!-- Dynamically populated -->
+        </div>
+
+        <div class="modal-actions" style="margin-top: 20px;">
+            <button type="button" onclick="closeConflictModal()" class="modal-btn btn-cancel" style="border-color: #d1d5db; width: auto;">Close</button>
+        </div>
+    </div>
 </div>
 
 <!-- Custom Confirm Modal -->
@@ -1384,8 +1479,12 @@ const dbHelper = {
         if (db) {
             try {
                 const snapshot = await db.collection('users').get();
-                // Return objects: { id (private login), displayName (public) }
-                return snapshot.docs.map(doc => ({ id: doc.id, displayName: doc.data().displayName || doc.id }));
+                // Return objects: { id (private login), displayName (public), createdAt }
+                return snapshot.docs.map(doc => ({ 
+                    id: doc.id, 
+                    displayName: doc.data().displayName || doc.id,
+                    createdAt: doc.data().createdAt 
+                }));
             } catch (e) {
                 console.error("Firestore read users failed, falling back to LocalStorage:", e);
             }
@@ -1406,7 +1505,7 @@ const dbHelper = {
         }
         const users = await this.getUsers();
         if (!users.find(u => u.id === userId)) {
-            users.push({ id: userId, displayName: displayName });
+            users.push({ id: userId, displayName: displayName, createdAt: new Date().toISOString() });
             localStorage.setItem('engineTrackerUsers', JSON.stringify(users));
         }
     },
@@ -1591,6 +1690,8 @@ const sampleData = [
 
 
 
+const visibleUserIds = new Set();
+
 function renderAuthUsers() {
     const grid = document.getElementById("auth-users-grid");
     if (!grid) return;
@@ -1599,17 +1700,37 @@ function renderAuthUsers() {
         grid.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; color:#666; padding:10px;">No users authorized yet.</div>`;
     } else {
         authUsers.forEach(u => {
+            const isVisible = visibleUserIds.has(u.id);
+            const dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Initial';
             grid.innerHTML += `
                 <div class="user-desk" id="user-desk-${u.id}" style="flex-direction:column; align-items:stretch; gap:6px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
                         <div style="display:flex; flex-direction:column; overflow:hidden; flex:1; min-width:0;">
                             <span class="user-desk-name" id="user-label-${u.id}"><strong>${u.displayName}</strong></span>
-                            <span style="font-size:0.72rem; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">ID: ${u.id}</span>
+                            <span style="font-size:0.72rem; color:#999; display:inline-flex; align-items:center; max-width:100%; overflow:hidden;">
+                                <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">ID: ${isVisible ? u.id : '*****'}</span>
+                                <span class="btn-toggle-id" onclick="toggleUserIdVisibility('${u.id}')" style="cursor:pointer; color:#999; display:inline-flex; align-items:center; margin-left:6px; flex-shrink:0; transition:color 0.2s;" onmouseover="this.style.color='#0d6efd'" onmouseout="this.style.color='#999'" title="${isVisible ? 'Hide ID' : 'Show ID'}">
+                                    ${isVisible ? `
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;">
+                                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                                        </svg>
+                                    ` : `
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    `}
+                                </span>
+                            </span>
                         </div>
-                        <div style="display:flex; gap:5px; flex-shrink:0;">
-                            <button class="btn-revoke-desk" style="background:#0d6efd; font-size:0.85rem;" onclick="editDisplayName('${u.id}', '${u.displayName.replace(/'/g, "&#39;")}')"
-                                title="Edit Display Name">&#9998;</button>
-                            <button class="btn-revoke-desk" onclick="removeAuthUser('${u.id}')" title="Revoke access">&times;</button>
+                        <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
+                            <span style="font-size:0.72rem; color:#a1a1aa;" title="Creation Date">Created: ${dateStr}</span>
+                            <div style="display:flex; gap:5px;">
+                                <button class="btn-revoke-desk" style="background:#0d6efd; font-size:0.85rem;" onclick="editDisplayName('${u.id}', '${u.displayName.replace(/'/g, "&#39;")}')"
+                                    title="Edit Display Name">&#9998;</button>
+                                <button class="btn-revoke-desk" onclick="removeAuthUser('${u.id}')" title="Revoke access">&times;</button>
+                            </div>
                         </div>
                     </div>
                     <div id="user-edit-row-${u.id}" style="display:none; gap:6px; margin-top:2px;">
@@ -1621,6 +1742,118 @@ function renderAuthUsers() {
                     </div>
                 </div>`;
         });
+    }
+}
+
+function toggleUserIdVisibility(userId) {
+    if (visibleUserIds.has(userId)) {
+        visibleUserIds.delete(userId);
+    } else {
+        visibleUserIds.add(userId);
+    }
+    renderAuthUsers();
+}
+
+let currentConflicts = [];
+
+function openConflictModal() {
+    if (userRole !== 'admin') return;
+    if (currentConflicts.length === 0) {
+        showCustomAlert("No Conflicts", "All active engine assignments are unique.", false);
+        return;
+    }
+    const modal = document.getElementById('conflict-details-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function closeConflictModal() {
+    const modal = document.getElementById('conflict-details-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function updateConflictMonitor() {
+    const cardEl = document.getElementById('stat-conflict-card');
+    const valueEl = document.getElementById('stat-conflict-value');
+    const listEl = document.getElementById('conflict-modal-list');
+    if (!cardEl || !valueEl || !listEl) return;
+
+    if (userRole !== 'admin') {
+        cardEl.style.display = 'none';
+        return;
+    }
+    cardEl.style.display = 'flex';
+
+    // Group active assignments by engine name (case-insensitive, trimmed)
+    const engineGroups = {};
+    data.forEach(d => {
+        const engineName = (d.engine || '').trim();
+        const engineKey = engineName.toLowerCase();
+        if (!engineKey) return;
+        
+        if (!engineGroups[engineKey]) {
+            engineGroups[engineKey] = {
+                name: engineName,
+                users: new Set(),
+                records: []
+            };
+        }
+        engineGroups[engineKey].users.add(d.user);
+        engineGroups[engineKey].records.push(d);
+    });
+
+    // Filter to find engines with > 1 distinct users
+    const conflicts = [];
+    for (const key in engineGroups) {
+        if (engineGroups[key].users.size > 1) {
+            conflicts.push({
+                engineName: engineGroups[key].name,
+                users: Array.from(engineGroups[key].users)
+            });
+        }
+    }
+
+    currentConflicts = conflicts;
+    valueEl.innerText = conflicts.length;
+
+    if (conflicts.length === 0) {
+        cardEl.className = 'stat-card conflicts no-conflict';
+        listEl.innerHTML = `
+            <div style="text-align: center; color: #666; padding: 20px; font-weight: 500;">
+                All active engine assignments are unique.
+            </div>
+        `;
+        closeConflictModal();
+    } else {
+        cardEl.className = 'stat-card conflicts has-conflict';
+        
+        let html = "";
+        conflicts.forEach(c => {
+            html += `
+                <div style="background: #fef2f2; border: 1.5px solid #fecaca; border-left: 4px solid #ef4444; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        <div style="font-size: 0.85rem; font-weight: 800; color: #991b1b; word-break: break-word; line-height: 1.25;">
+                            ${c.engineName}
+                        </div>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #7f1d1d; line-height: 1.4;">
+                        Assigned to:
+                        <ul style="margin: 4px 0 0; padding-left: 15px; font-weight: 600; list-style-type: square;">
+                            ${c.users.map(u => `<li>${u}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        });
+        listEl.innerHTML = html;
     }
 }
 
@@ -1713,7 +1946,6 @@ function getTableAvatar(name) {
 // Helper for status CSS class
 function statusClass(s) {
     if(s === "Completed") return "completed";
-    if(s === "Blocked") return "blocked";
     if(s === "In Progress") return "progress";
     return "notstarted";
 }
@@ -1723,7 +1955,6 @@ function updateDashboard(filteredData) {
     document.getElementById('stat-total').innerText = filteredData.length;
     document.getElementById('stat-completed').innerText = filteredData.filter(d => d.status === 'Completed').length;
     document.getElementById('stat-progress').innerText = filteredData.filter(d => d.status === 'In Progress').length;
-    document.getElementById('stat-blocked').innerText = filteredData.filter(d => d.status === 'Blocked').length;
 }
 
 // Update User Select Dropdown — shows Display Names, value = displayName (used in records)
@@ -1747,31 +1978,40 @@ function render() {
         lastFilterStatus = filterStatus;
     }
 
-    // Apply Filters
-    const filteredData = data.filter(d => {
-        const matchesSearch = d.user.toLowerCase().includes(searchStr) || d.engine.toLowerCase().includes(searchStr);
+    // Apply Search/Status Filters (Base filtered data for User-Wise tracking)
+    const filteredDataForSearch = data.filter(d => {
+        const matchesSearch = (d.user || '').toLowerCase().includes(searchStr) || (d.engine || '').toLowerCase().includes(searchStr);
         const matchesStatus = filterStatus === 'All' || d.status === filterStatus;
         return matchesSearch && matchesStatus;
     });
 
-    updateDashboard(filteredData);
-    updateUserList();
+    // Apply Role-based Filter for Project Summary Table (Restricted to logged-in user unless admin)
+    const summaryData = filteredDataForSearch.filter(d => {
+        if (userRole !== 'admin') {
+            return (d.user || '').toLowerCase() === userName.toLowerCase();
+        }
+        return true;
+    });
 
-    // Handle Pagination bounds
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    updateDashboard(summaryData);
+    updateUserList();
+    updateConflictMonitor();
+
+    // Handle Pagination bounds for Summary Table
+    const totalPages = Math.ceil(summaryData.length / itemsPerPage);
     if (currentPage > totalPages) {
         currentPage = Math.max(1, totalPages);
     }
 
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const paginatedData = filteredData.slice(startIndex, endIndex);
+    const paginatedData = summaryData.slice(startIndex, endIndex);
 
     // Render Summary Table
     const tbody = document.querySelector("#summary tbody");
     tbody.innerHTML = "";
     
-    if (filteredData.length === 0) {
+    if (summaryData.length === 0) {
         tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 20px;">No records found.</td></tr>`;
     } else {
         paginatedData.forEach(d => {
@@ -1787,7 +2027,6 @@ function render() {
                             <option ${d.status === 'Not Started' ? 'selected' : ''}>Not Started</option>
                             <option ${d.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
                             <option ${d.status === 'Completed' ? 'selected' : ''}>Completed</option>
-                            <option ${d.status === 'Blocked' ? 'selected' : ''}>Blocked</option>
                         </select>
                     </td>
                     <td><input type="text" id="inline-remarks-${d.id}" value="${d.remarks || ""}"></td>
@@ -1858,11 +2097,11 @@ function render() {
         });
     }
 
-    renderPagination(filteredData.length);
+    renderPagination(summaryData.length);
 
-    // Render User-Wise Accordions
+    // Render User-Wise Accordions (using full search-filtered data)
     const usersObj = {};
-    filteredData.forEach(d => {
+    filteredDataForSearch.forEach(d => {
         if(!usersObj[d.user]) usersObj[d.user] = [];
         usersObj[d.user].push(d);
     });
@@ -1892,8 +2131,8 @@ function render() {
                     <span class="accordion-chevron">▼</span>
                 </span>
             </summary>
-            <div class='table-responsive'>
-                <table>
+            <div class="accordion-table-container">
+                <table class="accordion-table">
                     <tr>
                         <th>Engine Name</th>
                         <th>Assigned</th>
@@ -2323,5 +2562,7 @@ function showCustomAlert(title, message, isDanger = true) {
 // Initialize
 initData();
 </script>
+
+
 </body>
 </html>
