@@ -2138,11 +2138,12 @@ function render() {
     if (summaryData.length === 0) {
         tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 20px;">No records found.</td></tr>`;
     } else {
-        paginatedData.forEach(d => {
+        paginatedData.forEach((d, idx) => {
+            const displayIndex = startIndex + idx + 1;
             if (d.id === editingId) {
                 tbody.innerHTML += `<tr>
                     <td>${getTableAvatar(d.user)}</td>
-                    <td>${d.engine}</td>
+                    <td>${displayIndex}. ${d.engine}</td>
                     <td><input type="date" id="inline-assigned-${d.id}" value="${d.assigned}" ${userRole === 'admin' ? '' : 'disabled'}></td>
                     <td><input type="date" id="inline-target-${d.id}" value="${d.target}" ${userRole === 'admin' ? '' : 'disabled'}></td>
                     <td><input type="date" id="inline-completion-${d.id}" value="${d.completion}"></td>
@@ -2174,7 +2175,7 @@ function render() {
             } else {
                 tbody.innerHTML += `<tr>
                     <td>${getTableAvatar(d.user)}</td>
-                    <td>${d.engine}</td>
+                    <td>${displayIndex}. ${d.engine}</td>
                     <td>${formatDate(d.assigned)}</td>
                     <td>${formatDate(d.target)}</td>
                     <td>${formatDate(d.completion)}</td>
@@ -2267,9 +2268,9 @@ function render() {
                         <th>Drive Link</th>
                     </tr>`;
         
-        userEngines.forEach(r => {
+        userEngines.forEach((r, idx) => {
             html += `<tr>
-                <td>${r.engine}</td>
+                <td>${idx + 1}. ${r.engine}</td>
                 <td>${formatDate(r.assigned)}</td>
                 <td>${formatDate(r.target)}</td>
                 <td>${formatDate(r.completion)}</td>
