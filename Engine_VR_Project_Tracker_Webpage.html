@@ -2143,7 +2143,15 @@ function render() {
             if (d.id === editingId) {
                 tbody.innerHTML += `<tr>
                     <td>${getTableAvatar(d.user)}</td>
-                    <td>${displayIndex}. ${d.engine}</td>
+                    <td>
+                        ${userRole === 'admin'
+                            ? `<div style="display: flex; align-items: center; gap: 6px;">
+                                   <span style="font-weight: 600; color: #666; flex-shrink: 0;">${displayIndex}.</span>
+                                   <input type="text" id="inline-engine-${d.id}" value="${d.engine.replace(/"/g, '&quot;')}">
+                               </div>`
+                            : `${displayIndex}. ${d.engine}`
+                        }
+                    </td>
                     <td><input type="date" id="inline-assigned-${d.id}" value="${d.assigned}" ${userRole === 'admin' ? '' : 'disabled'}></td>
                     <td><input type="date" id="inline-target-${d.id}" value="${d.target}" ${userRole === 'admin' ? '' : 'disabled'}></td>
                     <td><input type="date" id="inline-completion-${d.id}" value="${d.completion}"></td>
@@ -2481,7 +2489,20 @@ async function saveInline(id) {
     const remarksVal = document.getElementById(`inline-remarks-${id}`).value;
     const driveUrlVal = document.getElementById(`inline-drive-${id}`).value.trim();
 
+    let engineVal = record.engine;
+    if (userRole === 'admin') {
+        const engineInput = document.getElementById(`inline-engine-${id}`);
+        if (engineInput) {
+            engineVal = engineInput.value.trim();
+            if (!engineVal) {
+                await showCustomAlert("Validation Error", "Engine Name cannot be empty!", true);
+                return;
+            }
+        }
+    }
+
     await dbHelper.updateRecord(id, {
+        engine: engineVal,
         assigned: assignedVal,
         target: targetVal,
         completion: completionVal,
