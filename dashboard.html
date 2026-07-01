@@ -8,6 +8,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
 /* ── Design Tokens ───────────────────────────────────────────────────────── */
 :root {
@@ -2432,7 +2433,7 @@ function renderDlProjectList() {
             <span class="dl-swatch" style="background:${p.color};"></span>
             <span class="dl-item-name">${p.name}<span class="dl-item-meta">${tasks} tasks</span></span>
             <div class="dl-btn-group">
-                <button class="dl-split-btn csv" onclick="downloadSingleProjectCSV('${p.id}')">${dlSvg}CSV</button>
+                <button class="dl-split-btn csv" onclick="downloadSingleProjectCSV('${p.id}')">${dlSvg}XLS</button>
                 <button class="dl-split-btn pdf" onclick="downloadSingleProjectPDF('${p.id}')">${pdfSvg}PDF</button>
             </div>
         </div>`;
@@ -2453,7 +2454,7 @@ function renderDlUserList() {
             <span class="dl-swatch" style="background:#3b82f6;"></span>
             <span class="dl-item-name">${u.displayName || u.id}<span class="dl-item-meta">${u.role || 'user'}</span></span>
             <div class="dl-btn-group">
-                <button class="dl-split-btn csv" onclick="downloadSingleUserCSV('${u.id}')">${dlSvg}CSV</button>
+                <button class="dl-split-btn csv" onclick="downloadSingleUserCSV('${u.id}')">${dlSvg}XLS</button>
                 <button class="dl-split-btn pdf" onclick="downloadSingleUserPDF('${u.id}')">${pdfSvg}PDF</button>
             </div>
         </div>
@@ -2511,143 +2512,151 @@ function fmtStatus(s) {
 function taskName(r)    { return r.engine || r.name || ''; }
 function taskRemarks(r) { return r.remarks || r.notes || ''; }
 
-function buildProjectCSVRows(project, records) {
-    const now   = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-    const total = records.length;
-    const done  = records.filter(r => r.status === 'Completed').length;
-    const prog  = records.filter(r => r.status === 'In Progress').length;
-    const pct   = total ? Math.round(done / total * 100) : 0;
-    return [
-        [`Volga Infosys \u2014 ${project.name} Tracker`],
-        [`Generated: ${now}`, '', `Exported by: ${userName}`],
-        [],
-        ['SUMMARY','Total: '+total,'Completed: '+done,'In Progress: '+prog,'Not Started: '+(total-done-prog),'Completion: '+pct+'%'],
-        [],
-        ['#','Assigned To','Task / Engine','Status','Assigned Date','Target Date','Completion Date','Remarks','Drive Link'],
-        ...records.map((r,i) => [i+1, r.user||'', taskName(r), fmtStatus(r.status), fmtDate(r.assigned), fmtDate(r.target), fmtDate(r.completion), taskRemarks(r), r.driveUrl||''])
-    ];
-}
-
-function buildUserCSVRows(displayName, role, allRecords) {
-    const now   = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-    const total = allRecords.length;
-    const done  = allRecords.filter(r => r.status === 'Completed').length;
-    const prog  = allRecords.filter(r => r.status === 'In Progress').length;
-    return [
-        [`Volga Infosys \u2014 ${displayName} Task Summary`],
-        [`Generated: ${now}`, '', `Role: ${role}`, '', `Exported by: ${userName}`],
-        [],
-        ['SUMMARY','Total Assigned: '+total,'Completed: '+done,'In Progress: '+prog,'Not Started: '+(total-done-prog)],
-        [],
-        ['#','Project','Task / Engine','Status','Assigned Date','Target Date','Completion Date','Remarks'],
-        ...allRecords.map((r,i) => [i+1, r._projectName||'', taskName(r), fmtStatus(r.status), fmtDate(r.assigned), fmtDate(r.target), fmtDate(r.completion), taskRemarks(r)])
-    ];
-}
-
-// CSV helpers
-function dlToCSV(rows) {
-    return rows.map(r => r.map(cell => {
-        const v = String(cell ?? '');
-        return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
-    }).join(',')).join('\n');
-}
-
-function dlDownloadCSV(filename, rows) {
-    const blob = new Blob(['\uFEFF' + dlToCSV(rows)], { type: 'text/csv;charset=utf-8;' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href = url; a.download = filename;
-    document.body.appendChild(a); a.click(); a.remove();
-    URL.revokeObjectURL(url);
-}
-
+// ─── XLSX Export Engine ───────────────────────────────────────────────────────
 function getDlRecords(project) {
     const local = localStorage.getItem(project.localStorageKey);
     return local ? JSON.parse(local) : [];
 }
-
 async function getDlRecordsAsync(project) {
     if (db) {
         try {
             const snap = await db.collection(project.firestoreCollection).get();
             const rows = snap.docs.map(d => d.data());
             if (rows.length > 0) return rows;
-        } catch(e) { /* fall through to localStorage */ }
+        } catch(e) {}
     }
     return getDlRecords(project);
 }
+function xlCell(v, bold, bg, fg, align, wrap) {
+    const cell = { v: v ?? '', t: typeof v === 'number' ? 'n' : 's' };
+    cell.s = {
+        font: { name:'Calibri', sz:10, bold:!!bold, color:{ rgb:(fg||'#000000').replace('#','') } },
+        fill: bg ? { fgColor:{ rgb:bg.replace('#','') }, patternType:'solid' } : { patternType:'none' },
+        alignment: { horizontal:align||'left', vertical:'center', wrapText:!!wrap },
+        border: { top:{style:'thin',color:{rgb:'D1D5DB'}}, bottom:{style:'thin',color:{rgb:'D1D5DB'}}, left:{style:'thin',color:{rgb:'D1D5DB'}}, right:{style:'thin',color:{rgb:'D1D5DB'}} }
+    };
+    return cell;
+}
+function statusXL(s) {
+    if (s === 'Completed')   return { bg:'D1FAE5', fg:'065F46', label:'✓ Completed'   };
+    if (s === 'In Progress') return { bg:'DBEAFE', fg:'1E40AF', label:'→ In Progress' };
+    return                          { bg:'FEF3C7', fg:'92400E', label:'○ Not Started' };
+}
+function saveXLSX(wb, filename) { XLSX.writeFile(wb, filename); }
 
 async function downloadSingleProjectCSV(id) {
-    const project = getDlProjects().find(p => p.id === id);
-    if (!project) return;
-    const records = await getDlRecordsAsync(project);
-    dlDownloadCSV(`${project.id}-summary.csv`, buildProjectCSVRows(project, records));
-    showCustomAlert('Downloaded', `${project.name} CSV saved.`, false);
+    if(typeof XLSX==='undefined'){showCustomAlert('Error','SheetJS not loaded.',false);return;}
+    const project=getDlProjects().find(p=>p.id===id); if(!project) return;
+    const records=await getDlRecordsAsync(project);
+    const total=records.length, done=records.filter(r=>r.status==='Completed').length;
+    const prog=records.filter(r=>r.status==='In Progress').length, ns=total-done-prog;
+    const pct=total?Math.round(done/total*100):0;
+    const now=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    const hdrs=['#','Assigned To','Task / Engine','Status','Assigned Date','Target Date','Completion Date','Remarks','Drive Link'];
+    const wids=[4,18,30,16,14,12,16,40,36]; const M=hdrs.length;
+    const summ=[{label:'TOTAL',val:total,bg:'EFF6FF',fg:'1E293B'},{label:'COMPLETED',val:done,bg:'D1FAE5',fg:'065F46'},{label:'IN PROGRESS',val:prog,bg:'DBEAFE',fg:'1E40AF'},{label:'NOT STARTED',val:ns,bg:'FEF3C7',fg:'92400E'},{label:'DONE %',val:pct+'%',bg:'F5F3FF',fg:'5B21B6'}];
+    const ws={}; ws['!merges']=[]; let R=0;
+    ws[XLSX.utils.encode_cell({r:R,c:0})]=xlCell(`Volga Infosys — ${project.name} Tracker`,true,'1E293B','#FFFFFF'); ws[XLSX.utils.encode_cell({r:R,c:0})].s.font={name:'Calibri',sz:13,bold:true,color:{rgb:'FFFFFF'}}; ws[XLSX.utils.encode_cell({r:R,c:0})].s.fill={fgColor:{rgb:'1E293B'},patternType:'solid'};
+    for(let c=1;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell('',false,'1E293B'); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+    ws[XLSX.utils.encode_cell({r:R,c:0})]=xlCell(`Generated: ${now}   |   Exported by: ${userName}`,false,'F8FAFC','#64748B'); for(let c=1;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell('',false,'F8FAFC'); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+    for(let c=0;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell(''); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+    summ.forEach((s,c)=>{ws[XLSX.utils.encode_cell({r:R,c})]=xlCell(s.label,true,s.bg,'#'+s.fg,'center');ws[XLSX.utils.encode_cell({r:R+1,c})]=xlCell(s.val,true,s.bg,'#'+s.fg,'center');ws[XLSX.utils.encode_cell({r:R+1,c})].s.font.sz=16;});
+    for(let c=summ.length;c<M;c++){ws[XLSX.utils.encode_cell({r:R,c})]=xlCell('');ws[XLSX.utils.encode_cell({r:R+1,c})]=xlCell('');} R+=2;
+    for(let c=0;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell(''); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+    hdrs.forEach((h,c)=>{ws[XLSX.utils.encode_cell({r:R,c})]=xlCell(h,true,'1E293B','#FFFFFF','center');ws[XLSX.utils.encode_cell({r:R,c})].s.font.color={rgb:'FFFFFF'};}); R++;
+    records.forEach((rec,ri)=>{const bg=ri%2===0?'FFFFFF':'F8FAFC';const sx=statusXL(rec.status);[ri+1,rec.user||'',taskName(rec),sx.label,fmtDate(rec.assigned),fmtDate(rec.target),fmtDate(rec.completion),taskRemarks(rec),rec.driveUrl||''].forEach((v,c)=>{ws[XLSX.utils.encode_cell({r:R,c})]=c===3?xlCell(v,true,sx.bg,'#'+sx.fg,'center'):xlCell(v,false,bg,'#334155',c===0?'center':'left',c===7);});R++;});
+    ws['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:R-1,c:M-1}}); ws['!cols']=wids.map(w=>({wch:w}));
+    const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,project.name.substring(0,31));
+    saveXLSX(wb,`${project.id}-summary.xlsx`);
+    showCustomAlert('Downloaded',`${project.name} spreadsheet saved.`,false);
 }
 
 async function downloadAllProjectsCSV() {
-    const projects = getDlProjects();
-    const now = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-    const rows = [
-        ['Volga Infosys \u2014 All Projects Summary'],
-        ['Generated: '+now, '', 'Exported by: '+userName],
-        [],
-        ['#','Project','Assigned To','Task / Engine','Status','Assigned Date','Target Date','Completion Date','Remarks','Drive Link']
-    ];
-    let i = 1;
-    for (const p of projects) {
-        const records = await getDlRecordsAsync(p);
-        if (records.length) {
-            rows.push([]);
-            rows.push(['--- '+p.name+' ---']);
-            records.forEach(r => rows.push([i++, p.name, r.user||'', taskName(r), fmtStatus(r.status), fmtDate(r.assigned), fmtDate(r.target), fmtDate(r.completion), taskRemarks(r), r.driveUrl||'']));
-        }
-    }
-    dlDownloadCSV('all-projects-summary.csv', rows);
-    showCustomAlert('Downloaded', 'All projects CSV saved.', false);
+    if(typeof XLSX==='undefined'){showCustomAlert('Error','SheetJS not loaded.',false);return;}
+    const projects=getDlProjects(), now=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    const hdrs=['#','Project','Assigned To','Task / Engine','Status','Assigned Date','Target Date','Completion Date','Remarks','Drive Link'];
+    const wids=[4,18,18,30,16,14,12,16,40,36]; const M=hdrs.length;
+    const ws={}; ws['!merges']=[]; let R=0, gtotal=0, gdone=0, gprog=0;
+    const sections=[];
+    for(const p of projects){const recs=await getDlRecordsAsync(p);if(!recs.length) continue;gtotal+=recs.length;gdone+=recs.filter(r=>r.status==='Completed').length;gprog+=recs.filter(r=>r.status==='In Progress').length;sections.push({p,recs});}
+    const gns=gtotal-gdone-gprog, gpct=gtotal?Math.round(gdone/gtotal*100):0;
+    const summ=[{label:'TOTAL',val:gtotal,bg:'EFF6FF',fg:'1E293B'},{label:'COMPLETED',val:gdone,bg:'D1FAE5',fg:'065F46'},{label:'IN PROGRESS',val:gprog,bg:'DBEAFE',fg:'1E40AF'},{label:'NOT STARTED',val:gns,bg:'FEF3C7',fg:'92400E'},{label:'DONE %',val:gpct+'%',bg:'F5F3FF',fg:'5B21B6'}];
+    ws[XLSX.utils.encode_cell({r:R,c:0})]=xlCell('Volga Infosys — All Projects Summary',true,'1E293B','#FFFFFF'); ws[XLSX.utils.encode_cell({r:R,c:0})].s.font={name:'Calibri',sz:13,bold:true,color:{rgb:'FFFFFF'}}; ws[XLSX.utils.encode_cell({r:R,c:0})].s.fill={fgColor:{rgb:'1E293B'},patternType:'solid'};
+    for(let c=1;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell('',false,'1E293B'); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+    ws[XLSX.utils.encode_cell({r:R,c:0})]=xlCell(`Generated: ${now}   |   Exported by: ${userName}`,false,'F8FAFC','#64748B'); for(let c=1;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell('',false,'F8FAFC'); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+    for(let c=0;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell(''); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+    summ.forEach((s,c)=>{ws[XLSX.utils.encode_cell({r:R,c})]=xlCell(s.label,true,s.bg,'#'+s.fg,'center');ws[XLSX.utils.encode_cell({r:R+1,c})]=xlCell(s.val,true,s.bg,'#'+s.fg,'center');ws[XLSX.utils.encode_cell({r:R+1,c})].s.font.sz=16;});
+    for(let c=summ.length;c<M;c++){ws[XLSX.utils.encode_cell({r:R,c})]=xlCell('');ws[XLSX.utils.encode_cell({r:R+1,c})]=xlCell('');} R+=2;
+    for(let c=0;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell(''); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+    hdrs.forEach((h,c)=>{ws[XLSX.utils.encode_cell({r:R,c})]=xlCell(h,true,'1E293B','#FFFFFF','center');ws[XLSX.utils.encode_cell({r:R,c})].s.font.color={rgb:'FFFFFF'};}); R++;
+    let gi=1;
+    sections.forEach(({p,recs})=>{
+        ws[XLSX.utils.encode_cell({r:R,c:0})]=xlCell(p.name,true,'3B82F6','#FFFFFF'); ws[XLSX.utils.encode_cell({r:R,c:0})].s.font.color={rgb:'FFFFFF'}; for(let c=1;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell('',false,'3B82F6'); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+        recs.forEach((rec,ri)=>{const bg=ri%2===0?'FFFFFF':'F8FAFC';const sx=statusXL(rec.status);[gi++,p.name,rec.user||'',taskName(rec),sx.label,fmtDate(rec.assigned),fmtDate(rec.target),fmtDate(rec.completion),taskRemarks(rec),rec.driveUrl||''].forEach((v,c)=>{ws[XLSX.utils.encode_cell({r:R,c})]=c===4?xlCell(v,true,sx.bg,'#'+sx.fg,'center'):xlCell(v,false,bg,'#334155',c===0?'center':'left',c===8);});R++;});
+    });
+    ws['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:R-1,c:M-1}}); ws['!cols']=wids.map(w=>({wch:w}));
+    const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'All Projects');
+    saveXLSX(wb,'all-projects-summary.xlsx');
+    showCustomAlert('Downloaded','All projects spreadsheet saved.',false);
 }
 
 async function downloadSingleUserCSV(userId) {
-    const user = authUsers.find(u => u.id === userId);
-    if (!user) return;
-    const displayName = user.displayName || user.id;
-    const projects = getDlProjects();
-    const allRecords = [];
-    for (const p of projects) {
-        const records = await getDlRecordsAsync(p);
-        records.filter(r => r.user === displayName).forEach(r => allRecords.push({...r, _projectName: p.name}));
-    }
-    dlDownloadCSV(`${userId}-summary.csv`, buildUserCSVRows(displayName, user.role||'user', allRecords));
-    showCustomAlert('Downloaded', `${displayName} CSV saved.`, false);
+    if(typeof XLSX==='undefined'){showCustomAlert('Error','SheetJS not loaded.',false);return;}
+    const user=authUsers.find(u=>u.id===userId); if(!user) return;
+    const displayName=user.displayName||user.id;
+    const projects=getDlProjects(); const allRecords=[];
+    for(const p of projects){const recs=await getDlRecordsAsync(p);recs.filter(r=>r.user===displayName).forEach(r=>allRecords.push({...r,_projectName:p.name}));}
+    const total=allRecords.length, done=allRecords.filter(r=>r.status==='Completed').length;
+    const prog=allRecords.filter(r=>r.status==='In Progress').length, ns=total-done-prog;
+    const pct=total?Math.round(done/total*100):0;
+    const now=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    const hdrs=['#','Project','Task / Engine','Status','Assigned Date','Target Date','Completion Date','Remarks'];
+    const wids=[4,18,30,16,14,12,16,40]; const M=hdrs.length;
+    const summ=[{label:'TOTAL ASSIGNED',val:total,bg:'EFF6FF',fg:'1E293B'},{label:'COMPLETED',val:done,bg:'D1FAE5',fg:'065F46'},{label:'IN PROGRESS',val:prog,bg:'DBEAFE',fg:'1E40AF'},{label:'NOT STARTED',val:ns,bg:'FEF3C7',fg:'92400E'},{label:'DONE %',val:pct+'%',bg:'F5F3FF',fg:'5B21B6'}];
+    const ws={}; ws['!merges']=[]; let R=0;
+    ws[XLSX.utils.encode_cell({r:R,c:0})]=xlCell(`Volga Infosys — ${displayName} Task Summary`,true,'1E293B','#FFFFFF'); ws[XLSX.utils.encode_cell({r:R,c:0})].s.font={name:'Calibri',sz:13,bold:true,color:{rgb:'FFFFFF'}}; ws[XLSX.utils.encode_cell({r:R,c:0})].s.fill={fgColor:{rgb:'1E293B'},patternType:'solid'};
+    for(let c=1;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell('',false,'1E293B'); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+    ws[XLSX.utils.encode_cell({r:R,c:0})]=xlCell(`Generated: ${now}   |   Role: ${user.role||'user'}   |   Exported by: ${userName}`,false,'F8FAFC','#64748B'); for(let c=1;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell('',false,'F8FAFC'); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+    for(let c=0;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell(''); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+    summ.forEach((s,c)=>{ws[XLSX.utils.encode_cell({r:R,c})]=xlCell(s.label,true,s.bg,'#'+s.fg,'center');ws[XLSX.utils.encode_cell({r:R+1,c})]=xlCell(s.val,true,s.bg,'#'+s.fg,'center');ws[XLSX.utils.encode_cell({r:R+1,c})].s.font.sz=16;});
+    for(let c=summ.length;c<M;c++){ws[XLSX.utils.encode_cell({r:R,c})]=xlCell('');ws[XLSX.utils.encode_cell({r:R+1,c})]=xlCell('');} R+=2;
+    for(let c=0;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell(''); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+    hdrs.forEach((h,c)=>{ws[XLSX.utils.encode_cell({r:R,c})]=xlCell(h,true,'1E293B','#FFFFFF','center');ws[XLSX.utils.encode_cell({r:R,c})].s.font.color={rgb:'FFFFFF'};}); R++;
+    allRecords.forEach((rec,ri)=>{const bg=ri%2===0?'FFFFFF':'F8FAFC';const sx=statusXL(rec.status);[ri+1,rec._projectName||'',taskName(rec),sx.label,fmtDate(rec.assigned),fmtDate(rec.target),fmtDate(rec.completion),taskRemarks(rec)].forEach((v,c)=>{ws[XLSX.utils.encode_cell({r:R,c})]=c===3?xlCell(v,true,sx.bg,'#'+sx.fg,'center'):xlCell(v,false,bg,'#334155',c===0?'center':'left',c===7);});R++;});
+    ws['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:R-1,c:M-1}}); ws['!cols']=wids.map(w=>({wch:w}));
+    const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,displayName.substring(0,31));
+    saveXLSX(wb,`${userId}-summary.xlsx`);
+    showCustomAlert('Downloaded',`${displayName} spreadsheet saved.`,false);
 }
 
 async function downloadAllUsersCSV() {
-    const now = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-    const rows = [
-        ['Volga Infosys \u2014 All Users Summary'],
-        ['Generated: '+now, '', 'Exported by: '+userName],
-        [],
-        ['#','User','Role','Project','Task / Engine','Status','Assigned Date','Target Date','Completion Date','Remarks']
-    ];
-    const projects = getDlProjects();
-    let i = 1;
-    for (const u of authUsers) {
-        const displayName = u.displayName || u.id;
-        const userRows = [];
-        for (const p of projects) {
-            const records = await getDlRecordsAsync(p);
-            records.filter(r => r.user === displayName).forEach(r => {
-                userRows.push([i++, displayName, u.role||'user', p.name, taskName(r), fmtStatus(r.status), fmtDate(r.assigned), fmtDate(r.target), fmtDate(r.completion), taskRemarks(r)]);
-            });
-        }
-        if (userRows.length) {
-            rows.push([]);
-            rows.push(['--- '+displayName+' ---']);
-            userRows.forEach(r => rows.push(r));
-        }
-    }
-    dlDownloadCSV('all-users-summary.csv', rows);
-    showCustomAlert('Downloaded', 'All users CSV saved.', false);
+    if(typeof XLSX==='undefined'){showCustomAlert('Error','SheetJS not loaded.',false);return;}
+    const now=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    const projects=getDlProjects();
+    const hdrs=['#','User','Role','Project','Task / Engine','Status','Assigned Date','Target Date','Completion Date','Remarks'];
+    const wids=[4,18,10,18,30,16,14,12,16,40]; const M=hdrs.length;
+    const ws={}; ws['!merges']=[]; let R=0, gtotal=0, gdone=0, gprog=0;
+    const userSections=[];
+    for(const u of authUsers){const dn=u.displayName||u.id;const uRows=[];for(const p of projects){const recs=await getDlRecordsAsync(p);recs.filter(r=>r.user===dn).forEach(r=>uRows.push([dn,u.role||'user',p.name,taskName(r),statusXL(r.status).label,fmtDate(r.assigned),fmtDate(r.target),fmtDate(r.completion),taskRemarks(r)]));} if(uRows.length){gtotal+=uRows.length;gdone+=uRows.filter(r=>r[4].startsWith('✓')).length;gprog+=uRows.filter(r=>r[4].startsWith('→')).length;userSections.push({name:dn,rows:uRows});}}
+    const gns=gtotal-gdone-gprog, gpct=gtotal?Math.round(gdone/gtotal*100):0;
+    const summ=[{label:'TOTAL',val:gtotal,bg:'EFF6FF',fg:'1E293B'},{label:'COMPLETED',val:gdone,bg:'D1FAE5',fg:'065F46'},{label:'IN PROGRESS',val:gprog,bg:'DBEAFE',fg:'1E40AF'},{label:'NOT STARTED',val:gns,bg:'FEF3C7',fg:'92400E'},{label:'DONE %',val:gpct+'%',bg:'F5F3FF',fg:'5B21B6'}];
+    ws[XLSX.utils.encode_cell({r:R,c:0})]=xlCell('Volga Infosys — All Users Summary',true,'1E293B','#FFFFFF'); ws[XLSX.utils.encode_cell({r:R,c:0})].s.font={name:'Calibri',sz:13,bold:true,color:{rgb:'FFFFFF'}}; ws[XLSX.utils.encode_cell({r:R,c:0})].s.fill={fgColor:{rgb:'1E293B'},patternType:'solid'};
+    for(let c=1;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell('',false,'1E293B'); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+    ws[XLSX.utils.encode_cell({r:R,c:0})]=xlCell(`Generated: ${now}   |   Exported by: ${userName}`,false,'F8FAFC','#64748B'); for(let c=1;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell('',false,'F8FAFC'); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+    for(let c=0;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell(''); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+    summ.forEach((s,c)=>{ws[XLSX.utils.encode_cell({r:R,c})]=xlCell(s.label,true,s.bg,'#'+s.fg,'center');ws[XLSX.utils.encode_cell({r:R+1,c})]=xlCell(s.val,true,s.bg,'#'+s.fg,'center');ws[XLSX.utils.encode_cell({r:R+1,c})].s.font.sz=16;});
+    for(let c=summ.length;c<M;c++){ws[XLSX.utils.encode_cell({r:R,c})]=xlCell('');ws[XLSX.utils.encode_cell({r:R+1,c})]=xlCell('');} R+=2;
+    for(let c=0;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell(''); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+    hdrs.forEach((h,c)=>{ws[XLSX.utils.encode_cell({r:R,c})]=xlCell(h,true,'1E293B','#FFFFFF','center');ws[XLSX.utils.encode_cell({r:R,c})].s.font.color={rgb:'FFFFFF'};}); R++;
+    let gi=1;
+    userSections.forEach(section=>{
+        ws[XLSX.utils.encode_cell({r:R,c:0})]=xlCell(section.name,true,'3B82F6','#FFFFFF'); ws[XLSX.utils.encode_cell({r:R,c:0})].s.font.color={rgb:'FFFFFF'}; for(let c=1;c<M;c++) ws[XLSX.utils.encode_cell({r:R,c})]=xlCell('',false,'3B82F6'); ws['!merges'].push({s:{r:R,c:0},e:{r:R,c:M-1}}); R++;
+        section.rows.forEach((row,ri)=>{const bg=ri%2===0?'FFFFFF':'F8FAFC';const sx=statusXL(row[4].replace(/^[✓→○]\s*/,''));const full=[gi++,...row];full.forEach((v,c)=>{ws[XLSX.utils.encode_cell({r:R,c})]=c===5?xlCell(v,true,sx.bg,'#'+sx.fg,'center'):xlCell(v,false,bg,'#334155',c===0?'center':'left',c===9);});R++;});
+    });
+    ws['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:R-1,c:M-1}}); ws['!cols']=wids.map(w=>({wch:w}));
+    const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'All Users');
+    saveXLSX(wb,'all-users-summary.xlsx');
+    showCustomAlert('Downloaded','All users spreadsheet saved.',false);
 }
 
 // ─── PDF Helper Utilities ─────────────────────────────────────────────────────
