@@ -369,7 +369,7 @@
 <script>
     // 1. Session check (auto-bypass login if already logged in)
     if (sessionStorage.getItem('loggedIn') === 'true') {
-        window.location.href = 'Engine_VR_Project_Tracker_Webpage.html';
+        window.location.href = 'dashboard.html';
     }
 
     // 2. Firebase Configuration - REPLACE WITH YOUR KEYS
@@ -400,14 +400,14 @@
             if (db) {
                 try {
                     const snapshot = await db.collection('users').get();
-                    return snapshot.docs.map(doc => ({ id: doc.id, displayName: doc.data().displayName || doc.id }));
+                    return snapshot.docs.map(doc => ({ id: doc.id, displayName: doc.data().displayName || doc.id, role: doc.data().role || 'user' }));
                 } catch (e) {
                     console.error("Firestore read failed, falling back to LocalStorage:", e);
                 }
             }
             const storedUsers = localStorage.getItem('engineTrackerUsers');
             const raw = storedUsers ? JSON.parse(storedUsers) : [];
-            return raw.map(u => typeof u === 'string' ? { id: u, displayName: u } : u);
+            return raw.map(u => typeof u === 'string' ? { id: u, displayName: u, role: 'user' } : { role: 'user', ...u });
         }
     };
 
@@ -452,7 +452,7 @@
                 sessionStorage.setItem('username', userid);
                 
                 showLoader(() => {
-                    window.location.href = 'Engine_VR_Project_Tracker_Webpage.html';
+                    window.location.href = 'dashboard.html';
                 });
             } else {
                 errorEl.innerText = "Invalid Admin Credentials";
@@ -465,12 +465,12 @@
                 const match = authUsers.find(u => u.id === userid);
                 if (match) {
                     sessionStorage.setItem('loggedIn', 'true');
-                    sessionStorage.setItem('role', 'user');
+                    sessionStorage.setItem('role', match.role || 'user');
                     // Store the Display Name (not the User ID) for use in the tracker
                     sessionStorage.setItem('username', match.displayName);
                     
                     showLoader(() => {
-                        window.location.href = 'Engine_VR_Project_Tracker_Webpage.html';
+                        window.location.href = 'dashboard.html';
                     });
                 } else {
                     errorEl.innerText = "Invalid User ID. Please contact an Admin.";
@@ -493,10 +493,8 @@
             document.getElementById('loader-text').innerText = "Loading workspace...";
         }, 1200);
 
-        // Redirect after delay
-        setTimeout(() => {
-            callback();
-        }, 2500);
+        // Navigate immediately — the overlay plays while the next page loads in the background
+        callback();
     }
 
     // Allow pressing Enter to login

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Volga Infosys - Engine VR Project Tracker</title>
+<title>Volga Infosys - Project Tracker</title>
 <link rel="icon" href="favicon.png" type="image/png">
 <!-- Firebase App and Firestore Compatibility SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -1294,20 +1294,6 @@ details[open] .accordion-chevron {
         grid-template-columns: 1fr;
     }
 }
-/* Page Loader */
-#page-loader {
-    position: fixed; inset: 0; background: #f5f2eb; z-index: 9999;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px;
-    transition: opacity 0.4s ease, visibility 0.4s ease;
-}
-#page-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-.loader-brand { display: flex; align-items: center; gap: 12px; }
-.loader-brand-text { font-size: 2rem; font-weight: 800; letter-spacing: 0.5px; margin: 0; }
-.loader-subtitle { font-size: 0.85rem; color: #8ba3b8; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; text-align: center; }
-.loader-bar-wrap { width: 260px; height: 5px; background: rgba(13,47,95,0.1); border-radius: 99px; overflow: hidden; }
-.loader-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #0b3a5e, #0d6efd); border-radius: 99px; transition: width 0.3s ease; }
-.loader-pct { font-size: 0.8rem; font-weight: 700; color: #8ba3b8; letter-spacing: 0.5px; margin-top: -16px; }
-
 /* Add Record Neumorphic Button */ 
 .neumorphic-btn {
   display: flex;
@@ -1351,50 +1337,31 @@ details[open] .accordion-chevron {
 </style>
 </head>
 <body>
-
-<!-- Page Loader -->
-<div id="page-loader">
-    <div class="loader-brand">
-        <img src="favicon.png" alt="Logo" style="width:40px;height:40px;object-fit:contain;">
-        <h1 class="loader-brand-text"><span class="volga-text">VOLGA</span><span class="infosys-text">INFOSYS</span></h1>
-    </div>
-    <div class="loader-subtitle">Engine VR Tracker</div>
-    <div class="loader-bar-wrap"><div class="loader-bar" id="loader-bar"></div></div>
-    <div class="loader-pct" id="loader-pct">0%</div>
-</div>
-
 <div class="container">
 
     <nav class="navbar">
         <div class="brand">
             <img src="favicon.png" alt="Volga Infosys Logo" style="width: 36px; height: 36px; object-fit: contain;">
-            <h1 class="brand-text"><span class="volga-text">VOLGA</span><span class="infosys-text">INFOSYS</span><span style="font-weight: 600; color: #8ba3b8; font-size: 1.1rem; margin-left: 15px; padding-left: 15px; border-left: 2px solid #e2e8f0; letter-spacing: 0px;">Engine VR Tracker</span></h1>
+            <h1 class="brand-text"><span class="volga-text">VOLGA</span><span class="infosys-text">INFOSYS</span><span style="font-weight: 600; color: #8ba3b8; font-size: 1.1rem; margin-left: 15px; padding-left: 15px; border-left: 2px solid #e2e8f0; letter-spacing: 0px;">Project Tracker</span></h1>
             <span id="db-status-badge" style="font-size: 0.75rem; font-weight: bold; padding: 4px 8px; border-radius: 12px; margin-left: 15px; display: inline-flex; align-items: center; gap: 5px;"></span>
-        </div>
-        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center;">
-            <a href="dashboard.html" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border: 1.5px solid #0d2f5f; color: #0d2f5f; font-weight: 600; font-size: 0.9rem; border-radius: 8px; transition: all 0.2s; background: transparent;" onmouseover="this.style.background='#0d2f5f'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='#0d2f5f';">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="7" height="7"></rect>
-                    <rect x="14" y="3" width="7" height="7"></rect>
-                    <rect x="14" y="14" width="7" height="7"></rect>
-                    <rect x="3" y="14" width="7" height="7"></rect>
-                </svg>
+            <a href="dashboard.html" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #0d6efd; font-weight: 700; font-size: 0.85rem; margin-left: 20px; padding: 6px 12px; border-radius: 8px; background: rgba(13,110,253,0.08); transition: all 0.2s;" onmouseover="this.style.background='rgba(13,110,253,0.15)'" onmouseout="this.style.background='rgba(13,110,253,0.08)'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                 <span>Dashboard</span>
             </a>
-            <div id="user-info" class="user-profile-pill" style="display: none;">
-                <div class="user-avatar" id="user-avatar-char">-</div>
-                <div class="user-info-text">
-                    <span class="username" id="display-username"></span>
-                    <span class="user-role" id="display-role"></span>
-                </div>
-                <button class="logout-btn" onclick="logout()" title="Logout">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                </button>
+        </div>
+        <div id="user-info" class="user-profile-pill" style="display: none;">
+            <div class="user-avatar" id="user-avatar-char">-</div>
+            <div class="user-info-text">
+                <span class="username" id="display-username"></span>
+                <span class="user-role" id="display-role"></span>
             </div>
+            <button class="logout-btn" onclick="logout()" title="Logout">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+            </button>
         </div>
     </nav>
 
@@ -1456,6 +1423,22 @@ details[open] .accordion-chevron {
         </div>
     </div>
 
+    <!-- User Management Panel (Admin Only) -->
+    <div class="card" id="user-management-card" style="display: none; border-left: 5px solid #4a148c;">
+        <h2 class="collapsible-header" onclick="toggleUserManagement()">
+            <span>Admin: User Login Management</span>
+            <span id="user-mgmt-toggle-icon" style="font-size: 0.9rem; transition: transform 0.2s;">▼</span>
+        </h2>
+        <div id="user-management-container">
+            <p style="font-size: 0.9rem; color: #666; margin-top: -10px; margin-bottom: 15px;">The <strong>User ID</strong> is private (used to log in). The <strong>Display Name</strong> is what appears publicly in the tracker.</p>
+            <div class="admin-create-row">
+                <input type="text" id="new-auth-user" placeholder="User ID (private login)...">
+                <input type="text" id="new-auth-display" placeholder="Display Name (shown in tracker)...">
+                <button onclick="addAuthUser()" class="btn-admin-create">Create Login User</button>
+            </div>
+            <div id="auth-users-grid" class="user-grid"></div>
+        </div>
+    </div>
 
     <!-- Add Form -->
     <div class="card form-card" id="add-form-card" style="display: none;">
@@ -1604,6 +1587,10 @@ details[open] .accordion-chevron {
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script>
+// Read project context from URL
+const urlParams = new URLSearchParams(window.location.search);
+const projectId = urlParams.get('project') || 'p1';
+
 // Authentication Check
 if (sessionStorage.getItem('loggedIn') !== 'true') {
     window.location.href = 'index.html';
@@ -1639,27 +1626,32 @@ const dbHelper = {
     async getUsers() {
         if (db) {
             try {
-                const snapshot = await db.collection('users').get();
+                const snapshot = await db.collection(`users_${projectId}`).get();
+                // Return objects: { id (private login), displayName (public), createdAt }
                 return snapshot.docs.map(doc => ({ 
                     id: doc.id, 
                     displayName: doc.data().displayName || doc.id,
-                    role: doc.data().role || 'user',
-                    createdAt: doc.data().createdAt,
-                    assignedProjects: doc.data().assignedProjects || []
+                    createdAt: doc.data().createdAt 
                 }));
             } catch (e) {
                 console.error("Firestore read users failed, falling back to LocalStorage:", e);
             }
         }
-        const storedUsers = localStorage.getItem('engineTrackerUsers');
-        const ids = storedUsers ? JSON.parse(storedUsers) : [];
-        return ids.map(u => typeof u === 'string' ? { id: u, displayName: u, role: 'user', assignedProjects: [] } : { role: 'user', assignedProjects: [], ...u });
+        const storedUsers = localStorage.getItem(`engineTrackerUsers_${projectId}`);
+        const ids = storedUsers ? JSON.parse(storedUsers) : [
+            { id: "alice", displayName: "Alice Johnson" },
+            { id: "bob", displayName: "Bob Smith" },
+            { id: "carol", displayName: "Carol Williams" }
+        ];
+        return ids.map(u => typeof u === 'string' ? { id: u, displayName: u } : u);
     },
 
     async addUser(userId, displayName) {
         if (db) {
             try {
-                await db.collection('users').doc(userId).set({ displayName: displayName, createdAt: new Date().toISOString() });
+                await db.collection(`users_${projectId}`).doc(userId).set({ displayName: displayName, createdAt: new Date().toISOString() });
+                // Also write to global users so they can log in via index.html
+                await db.collection('users').doc(userId).set({ displayName: displayName, role: 'user', createdAt: new Date().toISOString() });
                 return;
             } catch (e) {
                 console.error("Firestore add user failed, falling back to LocalStorage:", e);
@@ -1668,14 +1660,21 @@ const dbHelper = {
         const users = await this.getUsers();
         if (!users.find(u => u.id === userId)) {
             users.push({ id: userId, displayName: displayName, createdAt: new Date().toISOString() });
-            localStorage.setItem('engineTrackerUsers', JSON.stringify(users));
+            localStorage.setItem(`engineTrackerUsers_${projectId}`, JSON.stringify(users));
+        }
+        // Sync to global LocalStorage
+        const globalUsersRaw = localStorage.getItem('engineTrackerUsers') || '[]';
+        const globalUsers = JSON.parse(globalUsersRaw);
+        if (!globalUsers.find(u => u.id === userId)) {
+            globalUsers.push({ id: userId, displayName: displayName, role: 'user', createdAt: new Date().toISOString() });
+            localStorage.setItem('engineTrackerUsers', JSON.stringify(globalUsers));
         }
     },
 
     async removeUser(userId) {
         if (db) {
             try {
-                await db.collection('users').doc(userId).delete();
+                await db.collection(`users_${projectId}`).doc(userId).delete();
                 return;
             } catch (e) {
                 console.error("Firestore remove user failed, falling back to LocalStorage:", e);
@@ -1683,12 +1682,13 @@ const dbHelper = {
         }
         let users = await this.getUsers();
         users = users.filter(u => u.id !== userId);
-        localStorage.setItem('engineTrackerUsers', JSON.stringify(users));
+        localStorage.setItem(`engineTrackerUsers_${projectId}`, JSON.stringify(users));
     },
 
     async updateUserDisplayName(userId, newDisplayName) {
         if (db) {
             try {
+                await db.collection(`users_${projectId}`).doc(userId).update({ displayName: newDisplayName });
                 await db.collection('users').doc(userId).update({ displayName: newDisplayName });
                 return;
             } catch (e) {
@@ -1699,27 +1699,35 @@ const dbHelper = {
         const u = users.find(u => u.id === userId);
         if (u) {
             u.displayName = newDisplayName;
-            localStorage.setItem('engineTrackerUsers', JSON.stringify(users));
+            localStorage.setItem(`engineTrackerUsers_${projectId}`, JSON.stringify(users));
+        }
+        // Update globally as well
+        const globalUsersRaw = localStorage.getItem('engineTrackerUsers') || '[]';
+        const globalUsers = JSON.parse(globalUsersRaw);
+        const match = globalUsers.find(u => u.id === userId);
+        if (match) {
+            match.displayName = newDisplayName;
+            localStorage.setItem('engineTrackerUsers', JSON.stringify(globalUsers));
         }
     },
 
     async getRecords() {
         if (db) {
             try {
-                const snapshot = await db.collection('engines').orderBy('createdAt', 'asc').get();
+                const snapshot = await db.collection(`engines_${projectId}`).orderBy('createdAt', 'asc').get();
                 return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } catch (e) {
                 console.error("Firestore read engines failed, falling back to LocalStorage:", e);
             }
         }
-        const storedData = localStorage.getItem('engineTrackerData');
+        const storedData = localStorage.getItem(`engineTrackerData_${projectId}`);
         return storedData ? JSON.parse(storedData) : [...sampleData];
     },
 
     async addRecord(record) {
         if (db) {
             try {
-                const docRef = db.collection('engines').doc();
+                const docRef = db.collection(`engines_${projectId}`).doc();
                 const recordData = { ...record, id: docRef.id, createdAt: new Date().toISOString() };
                 await docRef.set(recordData);
                 return recordData;
@@ -1729,14 +1737,14 @@ const dbHelper = {
         }
         const records = await this.getRecords();
         records.push(record);
-        localStorage.setItem('engineTrackerData', JSON.stringify(records));
+        localStorage.setItem(`engineTrackerData_${projectId}`, JSON.stringify(records));
         return record;
     },
 
     async updateRecord(id, updates) {
         if (db) {
             try {
-                await db.collection('engines').doc(id).update(updates);
+                await db.collection(`engines_${projectId}`).doc(id).update(updates);
                 return;
             } catch (e) {
                 console.error("Firestore update engine failed, falling back to LocalStorage:", e);
@@ -1746,14 +1754,14 @@ const dbHelper = {
         const index = records.findIndex(r => r.id === id);
         if (index > -1) {
             records[index] = { ...records[index], ...updates };
-            localStorage.setItem('engineTrackerData', JSON.stringify(records));
+            localStorage.setItem(`engineTrackerData_${projectId}`, JSON.stringify(records));
         }
     },
 
     async deleteRecord(id) {
         if (db) {
             try {
-                await db.collection('engines').doc(id).delete();
+                await db.collection(`engines_${projectId}`).doc(id).delete();
                 return;
             } catch (e) {
                 console.error("Firestore delete engine failed, falling back to LocalStorage:", e);
@@ -1761,7 +1769,7 @@ const dbHelper = {
         }
         let records = await this.getRecords();
         records = records.filter(r => r.id !== id);
-        localStorage.setItem('engineTrackerData', JSON.stringify(records));
+        localStorage.setItem(`engineTrackerData_${projectId}`, JSON.stringify(records));
     }
 };
 
@@ -1773,25 +1781,7 @@ const itemsPerPage = 6;
 let lastSearchStr = "";
 let lastFilterStatus = "All";
 
-let loaderTimers = [];
-function setLoaderProgress(pct) {
-    pct = Math.min(pct, 100);
-    document.getElementById('loader-bar').style.width = pct + '%';
-    document.getElementById('loader-pct').textContent = Math.round(pct) + '%';
-}
-function startLoaderSimulation() {
-    [[10,80],[25,200],[40,350],[55,550],[68,800],[78,1100],[85,1500]].forEach(([p,d]) => { loaderTimers.push(setTimeout(() => setLoaderProgress(p), d)); });
-}
-function finishLoader() {
-    loaderTimers.forEach(t => clearTimeout(t));
-    loaderTimers = [];
-    setLoaderProgress(100);
-    setTimeout(() => document.getElementById('page-loader').classList.add('hidden'), 350);
-}
-
 document.addEventListener("DOMContentLoaded", async function() {
-    startLoaderSimulation();
-
     // Set Database Status Badge
     const dbStatusBadge = document.getElementById('db-status-badge');
     if (dbStatusBadge) {
@@ -1806,10 +1796,20 @@ document.addEventListener("DOMContentLoaded", async function() {
         }
     }
 
+    // Dynamically set page title based on project
+    const storedProjects = JSON.parse(localStorage.getItem('engineTrackerProjects') || '[]');
+    const activeProj = storedProjects.find(p => p.id === projectId);
+    if (activeProj) {
+        document.title = 'Volga Infosys - ' + activeProj.name + ' Tracker';
+        // Update breadcrumb span if it exists
+        const ttlSpan = document.querySelector('.brand-text span:last-child');
+        if (ttlSpan) ttlSpan.textContent = activeProj.name + ' Tracker';
+    }
     document.getElementById('user-info').style.display = 'flex';
     document.getElementById('display-username').innerText = userName;
     document.getElementById('display-role').innerText = userRole === 'admin' ? 'Admin' : 'User';
     
+    // Set user avatar character
     const avatarChar = userName.trim().charAt(0);
     const avatarEl = document.getElementById('user-avatar-char');
     if (avatarEl) avatarEl.innerText = avatarChar;
@@ -1817,43 +1817,32 @@ document.addEventListener("DOMContentLoaded", async function() {
     if (userRole === 'admin') {
         const addForm = document.getElementById('add-form-card');
         if (addForm) addForm.style.display = 'block';
+
+        const userMgmt = document.getElementById('user-management-card');
+        if (userMgmt) userMgmt.style.display = 'block';
     } else {
+        // Regular users: hide the Add Form entirely
         const addForm = document.getElementById('add-form-card');
         if (addForm) addForm.style.display = 'none';
     }
 
     await initData();
 
-    // ── Project Access Gate ──────────────────────────────────────────────────
-    if (userRole !== 'admin') {
-        const me = authUsers.find(u => u.displayName === userName);
-        const assigned = me ? (me.assignedProjects || []) : [];
-        if (!assigned.includes('engine_vr')) {
-            finishLoader();
-            document.body.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:'Segoe UI',sans-serif;background:#f5f2eb;text-align:center;padding:20px;">
-                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="1.5" style="margin-bottom:20px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                <h2 style="color:#0d2f5f;margin:0 0 10px;font-size:1.6rem;font-weight:800;">Access Denied</h2>
-                <p style="color:#666;font-size:1rem;margin:0 0 24px;max-width:360px;">You don't have access to the <strong>Engine VR</strong> project. Contact an admin to request access.</p>
-                <a href="dashboard.html" style="padding:10px 24px;background:#0d6efd;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.95rem;">← Back to Dashboard</a>
-            </div>`;
-            return;
-        }
-    }
-    // ────────────────────────────────────────────────────────────────────────
-
-    finishLoader();
-
+    // Set default Assigned Date
     const today = new Date().toISOString().split("T")[0];
     const assignedInput = document.getElementById('assigned');
     if (assignedInput) {
         assignedInput.value = today;
-        if (userRole !== 'admin') assignedInput.disabled = true;
+        if (userRole !== 'admin') {
+            assignedInput.disabled = true;
+        }
     }
 });
 
 async function initData() {
     authUsers = await dbHelper.getUsers();
     data = await dbHelper.getRecords();
+    renderAuthUsers();
     render();
 }
 
@@ -1880,7 +1869,69 @@ const sampleData = [
 
 
 
+const visibleUserIds = new Set();
 
+function renderAuthUsers() {
+    const grid = document.getElementById("auth-users-grid");
+    if (!grid) return;
+    grid.innerHTML = "";
+    if (authUsers.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; color:#666; padding:10px;">No users authorized yet.</div>`;
+    } else {
+        authUsers.forEach(u => {
+            const isVisible = visibleUserIds.has(u.id);
+            const dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Initial';
+            grid.innerHTML += `
+                <div class="user-desk" id="user-desk-${u.id}" style="flex-direction:column; align-items:stretch; gap:6px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                        <div style="display:flex; flex-direction:column; overflow:hidden; flex:1; min-width:0;">
+                            <span class="user-desk-name" id="user-label-${u.id}"><strong>${u.displayName}</strong></span>
+                            <span style="font-size:0.72rem; color:#999; display:inline-flex; align-items:center; max-width:100%; overflow:hidden;">
+                                <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">ID: ${isVisible ? u.id : '*****'}</span>
+                                <span class="btn-toggle-id" onclick="toggleUserIdVisibility('${u.id}')" style="cursor:pointer; color:#999; display:inline-flex; align-items:center; margin-left:6px; flex-shrink:0; transition:color 0.2s;" onmouseover="this.style.color='#0d6efd'" onmouseout="this.style.color='#999'" title="${isVisible ? 'Hide ID' : 'Show ID'}">
+                                    ${isVisible ? `
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;">
+                                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                                        </svg>
+                                    ` : `
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    `}
+                                </span>
+                            </span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
+                            <span style="font-size:0.72rem; color:#a1a1aa;" title="Creation Date">Created: ${dateStr}</span>
+                            <div style="display:flex; gap:5px;">
+                                <button class="btn-revoke-desk" style="background:#0d6efd; font-size:0.85rem;" onclick="editDisplayName('${u.id}', '${u.displayName.replace(/'/g, "&#39;")}')"
+                                    title="Edit Display Name">&#9998;</button>
+                                <button class="btn-revoke-desk" onclick="removeAuthUser('${u.id}')" title="Revoke access">&times;</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="user-edit-row-${u.id}" style="display:none; gap:6px; margin-top:2px;">
+                        <input type="text" id="user-edit-input-${u.id}" value="${u.displayName.replace(/"/g, '&quot;')}"
+                            style="flex:1; padding:5px 8px; border:1.5px solid #0d6efd; border-radius:6px; font-size:0.85rem;"
+                            onkeydown="if(event.key==='Enter') saveDisplayName('${u.id}'); if(event.key==='Escape') cancelEditDisplayName('${u.id}');">
+                        <button onclick="saveDisplayName('${u.id}')" style="width:auto; background:#198754; padding:5px 10px; font-size:0.8rem; border-radius:6px;">Save</button>
+                        <button onclick="cancelEditDisplayName('${u.id}')" style="width:auto; background:#6c757d; padding:5px 10px; font-size:0.8rem; border-radius:6px;">Cancel</button>
+                    </div>
+                </div>`;
+        });
+    }
+}
+
+function toggleUserIdVisibility(userId) {
+    if (visibleUserIds.has(userId)) {
+        visibleUserIds.delete(userId);
+    } else {
+        visibleUserIds.add(userId);
+    }
+    renderAuthUsers();
+}
 
 let currentConflicts = [];
 
@@ -1986,7 +2037,71 @@ function updateConflictMonitor() {
     }
 }
 
+function editDisplayName(userId, currentName) {
+    const row = document.getElementById(`user-edit-row-${userId}`);
+    const input = document.getElementById(`user-edit-input-${userId}`);
+    if (row) { row.style.display = 'flex'; }
+    if (input) { input.focus(); input.select(); }
+}
 
+function cancelEditDisplayName(userId) {
+    const row = document.getElementById(`user-edit-row-${userId}`);
+    if (row) row.style.display = 'none';
+}
+
+async function saveDisplayName(userId) {
+    const input = document.getElementById(`user-edit-input-${userId}`);
+    if (!input) return;
+    const newName = input.value.trim();
+    if (!newName) { await showCustomAlert('Validation Error', 'Display Name cannot be empty.', true); return; }
+    await dbHelper.updateUserDisplayName(userId, newName);
+    authUsers = await dbHelper.getUsers();
+    renderAuthUsers();
+    updateUserList();
+}
+
+async function addAuthUser() {
+    if (userRole !== 'admin') {
+        await showCustomAlert("Authorization Error", "Only admins can manage users.", true);
+        return;
+    }
+    const newUserId = document.getElementById('new-auth-user').value.trim();
+    const newDisplayName = document.getElementById('new-auth-display').value.trim();
+    if (!newUserId || !newDisplayName) {
+        await showCustomAlert("Validation Error", "Please enter both a User ID and a Display Name.", true);
+        return;
+    }
+    if (authUsers.find(u => u.id === newUserId)) {
+        await showCustomAlert("Validation Error", "A user with that User ID already exists!", true);
+        return;
+    }
+    await dbHelper.addUser(newUserId, newDisplayName);
+    document.getElementById('new-auth-user').value = "";
+    document.getElementById('new-auth-display').value = "";
+    authUsers = await dbHelper.getUsers();
+    renderAuthUsers();
+    updateUserList();
+}
+
+async function removeAuthUser(userId) {
+    if (userRole !== 'admin') {
+        await showCustomAlert("Authorization Error", "Only admins can manage users.", true);
+        return;
+    }
+    const user = authUsers.find(u => u.id === userId);
+    const label = user ? user.displayName : userId;
+    const confirmed = await showCustomConfirm(
+        "Revoke User Login",
+        `You are about to revoke dashboard access for <strong style="color: var(--dark); font-weight: 700;">${label}</strong>.`,
+        false
+    );
+    if (confirmed) {
+        await dbHelper.removeUser(userId);
+        authUsers = await dbHelper.getUsers();
+        renderAuthUsers();
+        updateUserList();
+    }
+}
 
 // Helper for date formatting (yyyy-mm-dd -> dd-mm-yy)
 function formatDate(dateStr) {
@@ -2486,7 +2601,18 @@ async function deleteRecord(id) {
     }
 }
 
-
+// Toggle User Management
+function toggleUserManagement() {
+    const container = document.getElementById('user-management-container');
+    const icon = document.getElementById('user-mgmt-toggle-icon');
+    if (container.style.display === 'none') {
+        container.style.display = 'block';
+        icon.style.transform = 'rotate(0deg)';
+    } else {
+        container.style.display = 'none';
+        icon.style.transform = 'rotate(-90deg)';
+    }
+}
 
 // Toggle Project Summary Table
 function toggleProjectSummary() {
@@ -2692,7 +2818,8 @@ function showCustomAlert(title, message, isDanger = true) {
     });
 }
 
-// Initialize handled by DOMContentLoaded above
+// Initialize
+initData();
 </script>
 
 

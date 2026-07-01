@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Volga Infosys - Engine VR Project Tracker</title>
+<title>Volga Infosys - Chaff Extension Project Tracker</title>
 <link rel="icon" href="favicon.png" type="image/png">
 <!-- Firebase App and Firestore Compatibility SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -227,7 +227,6 @@ body {
     background: #b02a37;
 }
 
-
 /* Dashboard Premium Cards */
 .dashboard {
     display: grid;
@@ -306,9 +305,9 @@ body {
 }
 
 /* Colors for specific states */
-.stat-card.total .stat-icon-wrapper { background: rgba(11, 58, 94, 0.1); color: #0B3A5E; }
-.stat-card.total .stat-decoration { background: #0B3A5E; }
-.stat-card.total { border-bottom: 4px solid #0B3A5E; }
+.stat-card.total .stat-icon-wrapper { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+.stat-card.total .stat-decoration { background: #8b5cf6; }
+.stat-card.total { border-bottom: 4px solid #8b5cf6; }
 
 .stat-card.completed .stat-icon-wrapper { background: rgba(25, 135, 84, 0.1); color: #198754; }
 .stat-card.completed .stat-decoration { background: #198754; }
@@ -440,7 +439,7 @@ button:hover {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     width: 100%;
-    padding-bottom: 8px; /* Extra padding to ensure scrollbar is not cut off */
+    padding-bottom: 8px;
 }
 
 #summary-table-container {
@@ -452,10 +451,9 @@ button:hover {
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 1100px; /* Expanded minimum width to allow breathable layout */
+    min-width: 1100px;
 }
 
-/* Specific border targeting to fix outer grid lines without double borders against container */
 #summary th:first-child, #summary td:first-child { border-left: none; }
 #summary th:last-child, #summary td:last-child { border-right: none; }
 #summary tr:first-child th { border-top: none; }
@@ -473,13 +471,11 @@ td {
     vertical-align: middle;
 }
 
-/* Prevent wrapping of short columns to keep them on a single line */
 #summary th, #summary td,
 details table th, details table td {
     white-space: nowrap;
 }
 
-/* Allow Remarks column to wrap normally for descriptions */
 #summary th:nth-child(7), #summary td:nth-child(7) {
     white-space: normal;
     min-width: 280px;
@@ -492,7 +488,6 @@ details table th:nth-child(6), details table td:nth-child(6) {
     width: auto;
 }
 
-/* Inline Edit Inputs formatting */
 table input[type="date"], 
 table input[type="text"], 
 table input[type="url"] {
@@ -518,7 +513,7 @@ table input[type="url"]:focus {
 table select {
     width: 100%;
     min-width: 130px;
-    padding: 8px 30px 8px 12px; /* Extra right padding for custom arrow */
+    padding: 8px 30px 8px 12px;
     border: 1.5px solid #e0e4e8;
     border-radius: 8px;
     background-color: #f8f9fa;
@@ -758,8 +753,6 @@ tr:hover {
 
 .stepper-line {
     width: 36px;
-    flex-grow: 0;
-    flex-shrink: 1;
     height: 2px;
     background: #E5E7EB;
     min-width: 12px;
@@ -791,8 +784,6 @@ tr:hover {
     }
 }
 
-
-/* Accordions for User View */
 details {
     background: #ffffff;
     border: 1px solid rgba(13, 47, 95, 0.1);
@@ -915,7 +906,6 @@ details[open] .accordion-chevron {
     color: #4b5563;
 }
 
-/* Fix table borders inside the rounded container */
 .accordion-table th:first-child, .accordion-table td:first-child { border-left: none; }
 .accordion-table th:last-child, .accordion-table td:last-child { border-right: none; }
 .accordion-table tr:first-child th { border-top: none; }
@@ -963,7 +953,6 @@ details[open] .accordion-chevron {
     transform: translate(1.5px, -1.5px);
 }
 
-/* Custom Confirm Modal Styling */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -1100,7 +1089,6 @@ details[open] .accordion-chevron {
     to { transform: scale(1); opacity: 1; }
 }
 
-/* Custom Scrollbar for responsive tables */
 .table-responsive::-webkit-scrollbar {
     height: 8px;
 }
@@ -1116,28 +1104,6 @@ details[open] .accordion-chevron {
     background: #a1aab5;
 }
 
-/* User Login Management Admin Form styles */
-.admin-create-row {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-    max-width: 100%;
-    flex-wrap: wrap;
-}
-.admin-create-row input {
-    flex: 1;
-    min-width: 160px;
-}
-.btn-admin-create {
-    width: auto !important;
-    background: #4a148c !important;
-    white-space: nowrap;
-}
-.btn-admin-create:hover {
-    background: #3c1070 !important;
-}
-
-/* Responsive Media Queries */
 @media (max-width: 992px) {
     .brand-text {
         font-size: 1.5rem;
@@ -1171,7 +1137,6 @@ details[open] .accordion-chevron {
         gap: 4px;
     }
     
-    /* Make subtitle fit nicely under brand text */
     .brand-text span[style*="font-size: 1.2rem"] {
         margin-left: 0 !important;
         font-size: 1rem !important;
@@ -1186,13 +1151,12 @@ details[open] .accordion-chevron {
         box-sizing: border-box;
     }
     
-    /* Disable custom scrollbars on touch devices for better swipe support */
     .table-responsive::-webkit-scrollbar {
         display: none;
     }
     .table-responsive {
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
+        -ms-overflow-style: none;
+        scrollbar-width: none;
     }
     
     .dashboard {
@@ -1238,18 +1202,8 @@ details[open] .accordion-chevron {
         gap: 10px;
     }
     
-    .admin-create-row {
-        flex-direction: column;
-        max-width: 100%;
-        gap: 10px;
-    }
-    
-    .btn-admin-create {
-        width: 100% !important;
-    }
-    
     .user-grid {
-        grid-template-columns: 1fr !important; /* Stack user tiles on mobile */
+        grid-template-columns: 1fr !important;
     }
     
     .form-grid {
@@ -1294,21 +1248,7 @@ details[open] .accordion-chevron {
         grid-template-columns: 1fr;
     }
 }
-/* Page Loader */
-#page-loader {
-    position: fixed; inset: 0; background: #f5f2eb; z-index: 9999;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px;
-    transition: opacity 0.4s ease, visibility 0.4s ease;
-}
-#page-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-.loader-brand { display: flex; align-items: center; gap: 12px; }
-.loader-brand-text { font-size: 2rem; font-weight: 800; letter-spacing: 0.5px; margin: 0; }
-.loader-subtitle { font-size: 0.85rem; color: #8ba3b8; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; text-align: center; }
-.loader-bar-wrap { width: 260px; height: 5px; background: rgba(13,47,95,0.1); border-radius: 99px; overflow: hidden; }
-.loader-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #0b3a5e, #0d6efd); border-radius: 99px; transition: width 0.3s ease; }
-.loader-pct { font-size: 0.8rem; font-weight: 700; color: #8ba3b8; letter-spacing: 0.5px; margin-top: -16px; }
 
-/* Add Record Neumorphic Button */ 
 .neumorphic-btn {
   display: flex;
   align-items: center;
@@ -1348,6 +1288,20 @@ details[open] .accordion-chevron {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
+
+/* Page Loader */
+#page-loader {
+    position: fixed; inset: 0; background: #f5f2eb; z-index: 9999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+#page-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.loader-brand { display: flex; align-items: center; gap: 12px; }
+.loader-brand-text { font-size: 2rem; font-weight: 800; letter-spacing: 0.5px; margin: 0; }
+.loader-subtitle { font-size: 0.85rem; color: #8ba3b8; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; text-align: center; }
+.loader-bar-wrap { width: 260px; height: 5px; background: rgba(13,47,95,0.1); border-radius: 99px; overflow: hidden; }
+.loader-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #0b3a5e, #8b5cf6); border-radius: 99px; transition: width 0.3s ease; }
+.loader-pct { font-size: 0.8rem; font-weight: 700; color: #8ba3b8; letter-spacing: 0.5px; margin-top: -16px; }
 </style>
 </head>
 <body>
@@ -1358,7 +1312,7 @@ details[open] .accordion-chevron {
         <img src="favicon.png" alt="Logo" style="width:40px;height:40px;object-fit:contain;">
         <h1 class="loader-brand-text"><span class="volga-text">VOLGA</span><span class="infosys-text">INFOSYS</span></h1>
     </div>
-    <div class="loader-subtitle">Engine VR Tracker</div>
+    <div class="loader-subtitle">Chaff Extension Tracker</div>
     <div class="loader-bar-wrap"><div class="loader-bar" id="loader-bar"></div></div>
     <div class="loader-pct" id="loader-pct">0%</div>
 </div>
@@ -1368,7 +1322,7 @@ details[open] .accordion-chevron {
     <nav class="navbar">
         <div class="brand">
             <img src="favicon.png" alt="Volga Infosys Logo" style="width: 36px; height: 36px; object-fit: contain;">
-            <h1 class="brand-text"><span class="volga-text">VOLGA</span><span class="infosys-text">INFOSYS</span><span style="font-weight: 600; color: #8ba3b8; font-size: 1.1rem; margin-left: 15px; padding-left: 15px; border-left: 2px solid #e2e8f0; letter-spacing: 0px;">Engine VR Tracker</span></h1>
+            <h1 class="brand-text"><span class="volga-text">VOLGA</span><span class="infosys-text">INFOSYS</span><span style="font-weight: 600; color: #8ba3b8; font-size: 1.1rem; margin-left: 15px; padding-left: 15px; border-left: 2px solid #e2e8f0; letter-spacing: 0px;">Chaff Extension Tracker</span></h1>
             <span id="db-status-badge" style="font-size: 0.75rem; font-weight: bold; padding: 4px 8px; border-radius: 12px; margin-left: 15px; display: inline-flex; align-items: center; gap: 5px;"></span>
         </div>
         <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center;">
@@ -1403,7 +1357,7 @@ details[open] .accordion-chevron {
         <div class="stat-card total">
             <div class="stat-header">
                 <div class="stat-icon-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>
-                <div class="stat-title">Total Engines</div>
+                <div class="stat-title">Total Components</div>
             </div>
             <div class="stat-value" id="stat-total">0</div>
             <div class="stat-decoration"></div>
@@ -1456,10 +1410,9 @@ details[open] .accordion-chevron {
         </div>
     </div>
 
-
     <!-- Add Form -->
-    <div class="card form-card" id="add-form-card" style="display: none;">
-        <h2>Add New Engine Assignment</h2>
+    <div class="card" id="add-form-card" style="display: none;">
+        <h2>Add New Chaff Extension Assignment</h2>
         <div class="form-grid">
             
             <div id="existing-user-div">
@@ -1472,7 +1425,7 @@ details[open] .accordion-chevron {
                 Assigned User: <span id="user-display-name" style="color: var(--primary);"></span>
             </div>
             
-            <input id="engine" placeholder="Engine Name">
+            <input id="engine" placeholder="Component Name">
             
             <div class="date-group">
                 <label>Date Assigned</label>
@@ -1509,7 +1462,7 @@ details[open] .accordion-chevron {
     <!-- Search and Filter -->
     <div class="card">
         <div class="filter-container">
-            <input id="search-input" placeholder="Search by User or Engine..." oninput="render()">
+            <input id="search-input" placeholder="Search by User or Component..." oninput="render()">
             <select id="filter-status" onchange="render()">
                 <option value="All">All Statuses</option>
                 <option>Not Started</option>
@@ -1527,7 +1480,7 @@ details[open] .accordion-chevron {
                 <thead>
                     <tr>
                         <th>Assigned User</th>
-                        <th>Engine Name</th>
+                        <th>Component Name</th>
                         <th>Assigned</th>
                         <th>Target</th>
                         <th>Completed</th>
@@ -1546,13 +1499,12 @@ details[open] .accordion-chevron {
     <!-- User Wise Tracking -->
     <div class="card">
         <h2>User Tracking</h2>
-        <p style="font-size: 0.9rem; color: #666; margin-top: -10px; margin-bottom: 15px;">Click on a user to expand and view their assigned engines.</p>
+        <p style="font-size: 0.9rem; color: #666; margin-top: -10px; margin-bottom: 15px;">Click on a user to expand and view their assigned components.</p>
         <div id="userSections"></div>
     </div>
 
-
     <footer style="margin-top: 40px; text-align: center; padding: 20px 0; font-size: 0.85rem; color: #777; border-top: 1px solid var(--border);">
-        &copy; 2026 Volga Infosys Private Limited. All rights reserved. &bull; Engine VR Project Integration Tracker
+        &copy; 2026 Volga Infosys Private Limited. All rights reserved. &bull; Chaff Extension Project Integration Tracker
     </footer>
 
 </div>
@@ -1569,8 +1521,8 @@ details[open] .accordion-chevron {
                 </svg>
             </div>
             <div style="flex: 1;">
-                <h3 style="margin: 0; color: var(--dark); font-size: 1.25rem; font-weight: 700; letter-spacing: 0.5px;">Engine Conflicts</h3>
-                <p style="margin: 3px 0 0; font-size: 0.85rem; color: #666; font-weight: 500;">Engines assigned to more than one active user.</p>
+                <h3 style="margin: 0; color: var(--dark); font-size: 1.25rem; font-weight: 700; letter-spacing: 0.5px;">Component Conflicts</h3>
+                <p style="margin: 3px 0 0; font-size: 0.85rem; color: #666; font-weight: 500;">Components assigned to more than one active user.</p>
             </div>
         </div>
         
@@ -1612,7 +1564,7 @@ if (sessionStorage.getItem('loggedIn') !== 'true') {
 const userRole = sessionStorage.getItem('role') || 'user';
 const userName = sessionStorage.getItem('username') || 'Unknown';
 
-// 1. Firebase Configuration - REPLACE WITH YOUR KEYS
+// Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyAKHrg6tNkdpnqU8a9r1DKs8oH4IvZcE04",
     authDomain: "enginevr-tracker.firebaseapp.com",
@@ -1656,112 +1608,65 @@ const dbHelper = {
         return ids.map(u => typeof u === 'string' ? { id: u, displayName: u, role: 'user', assignedProjects: [] } : { role: 'user', assignedProjects: [], ...u });
     },
 
-    async addUser(userId, displayName) {
-        if (db) {
-            try {
-                await db.collection('users').doc(userId).set({ displayName: displayName, createdAt: new Date().toISOString() });
-                return;
-            } catch (e) {
-                console.error("Firestore add user failed, falling back to LocalStorage:", e);
-            }
-        }
-        const users = await this.getUsers();
-        if (!users.find(u => u.id === userId)) {
-            users.push({ id: userId, displayName: displayName, createdAt: new Date().toISOString() });
-            localStorage.setItem('engineTrackerUsers', JSON.stringify(users));
-        }
-    },
-
-    async removeUser(userId) {
-        if (db) {
-            try {
-                await db.collection('users').doc(userId).delete();
-                return;
-            } catch (e) {
-                console.error("Firestore remove user failed, falling back to LocalStorage:", e);
-            }
-        }
-        let users = await this.getUsers();
-        users = users.filter(u => u.id !== userId);
-        localStorage.setItem('engineTrackerUsers', JSON.stringify(users));
-    },
-
-    async updateUserDisplayName(userId, newDisplayName) {
-        if (db) {
-            try {
-                await db.collection('users').doc(userId).update({ displayName: newDisplayName });
-                return;
-            } catch (e) {
-                console.error("Firestore update displayName failed:", e);
-            }
-        }
-        let users = await this.getUsers();
-        const u = users.find(u => u.id === userId);
-        if (u) {
-            u.displayName = newDisplayName;
-            localStorage.setItem('engineTrackerUsers', JSON.stringify(users));
-        }
-    },
-
     async getRecords() {
         if (db) {
             try {
-                const snapshot = await db.collection('engines').orderBy('createdAt', 'asc').get();
+                const snapshot = await db.collection('chaff_engines').orderBy('createdAt', 'asc').get();
                 return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } catch (e) {
-                console.error("Firestore read engines failed, falling back to LocalStorage:", e);
+                console.error("Firestore read chaff failed, falling back to LocalStorage:", e);
             }
         }
-        const storedData = localStorage.getItem('engineTrackerData');
+        const storedData = localStorage.getItem('chaffTrackerData');
         return storedData ? JSON.parse(storedData) : [...sampleData];
     },
 
     async addRecord(record) {
         if (db) {
             try {
-                const docRef = db.collection('engines').doc();
+                const docRef = db.collection('chaff_engines').doc();
                 const recordData = { ...record, id: docRef.id, createdAt: new Date().toISOString() };
                 await docRef.set(recordData);
                 return recordData;
             } catch (e) {
-                console.error("Firestore add engine failed, falling back to LocalStorage:", e);
+                console.error("Firestore add chaff failed, falling back to LocalStorage:", e);
             }
         }
         const records = await this.getRecords();
         records.push(record);
-        localStorage.setItem('engineTrackerData', JSON.stringify(records));
+        localStorage.setItem('chaffTrackerData', JSON.stringify(records));
         return record;
     },
 
     async updateRecord(id, updates) {
         if (db) {
             try {
-                await db.collection('engines').doc(id).update(updates);
+                await db.collection('chaff_engines').doc(id).update(updates);
                 return;
             } catch (e) {
-                console.error("Firestore update engine failed, falling back to LocalStorage:", e);
+                console.error("Firestore update chaff failed, falling back to LocalStorage:", e);
             }
         }
         const records = await this.getRecords();
         const index = records.findIndex(r => r.id === id);
         if (index > -1) {
             records[index] = { ...records[index], ...updates };
-            localStorage.setItem('engineTrackerData', JSON.stringify(records));
+            localStorage.setItem('chaffTrackerData', JSON.stringify(records));
         }
     },
 
     async deleteRecord(id) {
         if (db) {
             try {
-                await db.collection('engines').doc(id).delete();
+                await db.collection('chaff_engines').doc(id).delete();
                 return;
             } catch (e) {
-                console.error("Firestore delete engine failed, falling back to LocalStorage:", e);
+                console.error("Firestore delete chaff failed, falling back to LocalStorage:", e);
             }
         }
         let records = await this.getRecords();
         records = records.filter(r => r.id !== id);
-        localStorage.setItem('engineTrackerData', JSON.stringify(records));
+        localStorage.setItem('chaffTrackerData', JSON.stringify(records));
     }
 };
 
@@ -1791,12 +1696,11 @@ function finishLoader() {
 
 document.addEventListener("DOMContentLoaded", async function() {
     startLoaderSimulation();
-
     // Set Database Status Badge
     const dbStatusBadge = document.getElementById('db-status-badge');
     if (dbStatusBadge) {
         if (db) {
-            dbStatusBadge.innerHTML = '<span style="width: 8px; height: 8px; background: #198754; border-radius: 50%; box-shadow: 0 0 0 3px rgba(25,135,84,0.2);"></span> Real-time overview of all engine projects and team progress';
+            dbStatusBadge.innerHTML = '<span style="width: 8px; height: 8px; background: #198754; border-radius: 50%; box-shadow: 0 0 0 3px rgba(25,135,84,0.2);"></span> Real-time overview of all Chaff Extension components and team progress';
             dbStatusBadge.style.background = 'rgba(25, 135, 84, 0.1)';
             dbStatusBadge.style.color = '#198754';
         } else {
@@ -1810,6 +1714,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     document.getElementById('display-username').innerText = userName;
     document.getElementById('display-role').innerText = userRole === 'admin' ? 'Admin' : 'User';
     
+    // Set user avatar character
     const avatarChar = userName.trim().charAt(0);
     const avatarEl = document.getElementById('user-avatar-char');
     if (avatarEl) avatarEl.innerText = avatarChar;
@@ -1828,13 +1733,13 @@ document.addEventListener("DOMContentLoaded", async function() {
     if (userRole !== 'admin') {
         const me = authUsers.find(u => u.displayName === userName);
         const assigned = me ? (me.assignedProjects || []) : [];
-        if (!assigned.includes('engine_vr')) {
+        if (!assigned.includes('chaff')) {
             finishLoader();
             document.body.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:'Segoe UI',sans-serif;background:#f5f2eb;text-align:center;padding:20px;">
                 <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="1.5" style="margin-bottom:20px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 <h2 style="color:#0d2f5f;margin:0 0 10px;font-size:1.6rem;font-weight:800;">Access Denied</h2>
-                <p style="color:#666;font-size:1rem;margin:0 0 24px;max-width:360px;">You don't have access to the <strong>Engine VR</strong> project. Contact an admin to request access.</p>
-                <a href="dashboard.html" style="padding:10px 24px;background:#0d6efd;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.95rem;">← Back to Dashboard</a>
+                <p style="color:#666;font-size:1rem;margin:0 0 24px;max-width:360px;">You don't have access to the <strong>Chaff Extension</strong> project. Contact an admin to request access.</p>
+                <a href="dashboard.html" style="padding:10px 24px;background:#8b5cf6;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.95rem;">← Back to Dashboard</a>
             </div>`;
             return;
         }
@@ -1843,11 +1748,14 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     finishLoader();
 
+    // Set default Assigned Date
     const today = new Date().toISOString().split("T")[0];
     const assignedInput = document.getElementById('assigned');
     if (assignedInput) {
         assignedInput.value = today;
-        if (userRole !== 'admin') assignedInput.disabled = true;
+        if (userRole !== 'admin') {
+            assignedInput.disabled = true;
+        }
     }
 });
 
@@ -1860,7 +1768,7 @@ async function initData() {
 async function logout() {
     const confirmed = await showCustomConfirm(
         "Logout Confirmation",
-        "Are you sure you want to log out of the Engine VR Project Integration Tracker?",
+        "Are you sure you want to log out of the Chaff Extension Project Tracker?",
         false,
         "Logout",
         false
@@ -1871,23 +1779,19 @@ async function logout() {
     }
 }
 
-// Initial Sample Data (used only if localStorage is empty)
+// Initial Sample Data (used only if LocalStorage is empty)
 const sampleData = [
-    { id: "1", user: "Alice Johnson", engine: "Unreal Engine 5.3", assigned: "2024-05-01", target: "2024-05-31", completion: "2024-05-28", status: "Completed", remarks: "Integration completed and tested." },
-    { id: "2", user: "Bob Smith", engine: "Unity 2022 LTS", assigned: "2024-05-03", target: "2024-06-10", completion: "", status: "In Progress", remarks: "Core features integrated." },
-    { id: "3", user: "Carol Williams", engine: "CryEngine 5.11", assigned: "2024-05-06", target: "2024-06-20", completion: "", status: "In Progress", remarks: "Rendering pipeline in progress." }
+    { id: "1", user: "Alice Johnson", engine: "Radar Signature Simulation", assigned: "2024-05-01", target: "2024-05-31", completion: "2024-05-28", status: "Completed", remarks: "Radar echo patterns verified." },
+    { id: "2", user: "Bob Smith", engine: "Countermeasure Dispenser System (CDS) Integration", assigned: "2024-05-03", target: "2024-06-10", completion: "", status: "In Progress", remarks: "Dispenser hardware trigger interfaces done." },
+    { id: "3", user: "Carol Williams", engine: "RF Chaff Deployment Algorithms", assigned: "2024-05-06", target: "2024-06-20", completion: "", status: "In Progress", remarks: "Aerodynamics simulation of chaff clouds in progress." }
 ];
-
-
-
-
 
 let currentConflicts = [];
 
 function openConflictModal() {
     if (userRole !== 'admin') return;
     if (currentConflicts.length === 0) {
-        showCustomAlert("No Conflicts", "All active engine assignments are unique.", false);
+        showCustomAlert("No Conflicts", "All active component assignments are unique.", false);
         return;
     }
     const modal = document.getElementById('conflict-details-modal');
@@ -1915,17 +1819,16 @@ function updateConflictMonitor() {
     }
     cardEl.style.display = 'flex';
 
-    // Group active assignments by engine name (case- and whitespace-insensitive)
+    // Group active assignments by component name
     const engineGroups = {};
     data.forEach(d => {
         const engineName = (d.engine || '').trim();
-        // Convert to lowercase and remove all whitespace characters to match variations like "Jet Engine" and "jetengine"
         const engineKey = engineName.toLowerCase().replace(/\s+/g, '');
         if (!engineKey) return;
         
         if (!engineGroups[engineKey]) {
             engineGroups[engineKey] = {
-                name: engineName, // Stores the first seen representation for UI rendering
+                name: engineName,
                 users: new Set(),
                 records: []
             };
@@ -1934,7 +1837,6 @@ function updateConflictMonitor() {
         engineGroups[engineKey].records.push(d);
     });
 
-    // Filter to find engines with > 1 distinct users
     const conflicts = [];
     for (const key in engineGroups) {
         if (engineGroups[key].users.size > 1) {
@@ -1952,7 +1854,7 @@ function updateConflictMonitor() {
         cardEl.className = 'stat-card conflicts no-conflict';
         listEl.innerHTML = `
             <div style="text-align: center; color: #666; padding: 20px; font-weight: 500;">
-                All active engine assignments are unique.
+                All active component assignments are unique.
             </div>
         `;
         closeConflictModal();
@@ -1986,9 +1888,7 @@ function updateConflictMonitor() {
     }
 }
 
-
-
-// Helper for date formatting (yyyy-mm-dd -> dd-mm-yy)
+// Helper for date formatting
 function formatDate(dateStr) {
     if (!dateStr) return "-";
     const parts = dateStr.split('-');
@@ -2002,7 +1902,6 @@ function formatDate(dateStr) {
 function getTableAvatar(name) {
     const firstWord = name ? name.split(' ')[0] : '';
     const initial = firstWord ? firstWord.charAt(0).toUpperCase() : 'U';
-    // Vibrant, modern colors: Indigo, Pink, Amber, Emerald, Red, Violet, Teal, Rose
     const colors = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#14b8a6', '#f43f5e'];
     const color = colors[initial.charCodeAt(0) % colors.length];
     return `<div style="display: flex; align-items: center;"><span style="display:flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:${color}; color:white; font-size:0.8rem; font-weight:bold; margin-right:8px;">${initial}</span><span>${firstWord}</span></div>`;
@@ -2023,7 +1922,7 @@ function updateDashboard(filteredData) {
     document.getElementById('stat-progress').innerText = filteredData.filter(d => d.status === 'In Progress').length;
 }
 
-// Update User Select Dropdown — shows Display Names, value = displayName (used in records)
+// Update User Select Dropdown
 function updateUserList() {
     const select = document.getElementById('existing-user');
     const currentVal = select ? select.value : "";
@@ -2044,14 +1943,12 @@ function render() {
         lastFilterStatus = filterStatus;
     }
 
-    // Apply Search/Status Filters (Base filtered data for User-Wise tracking)
     const filteredDataForSearch = data.filter(d => {
         const matchesSearch = (d.user || '').toLowerCase().includes(searchStr) || (d.engine || '').toLowerCase().includes(searchStr);
         const matchesStatus = filterStatus === 'All' || d.status === filterStatus;
         return matchesSearch && matchesStatus;
     });
 
-    // Apply Role-based Filter for Project Summary Table (Restricted to logged-in user unless admin)
     const summaryData = filteredDataForSearch.filter(d => {
         if (userRole !== 'admin') {
             return (d.user || '').toLowerCase() === userName.toLowerCase();
@@ -2063,7 +1960,6 @@ function render() {
     updateUserList();
     updateConflictMonitor();
 
-    // Handle Pagination bounds for Summary Table
     const totalPages = Math.ceil(summaryData.length / itemsPerPage);
     if (currentPage > totalPages) {
         currentPage = Math.max(1, totalPages);
@@ -2073,7 +1969,6 @@ function render() {
     const endIndex = startIndex + itemsPerPage;
     const paginatedData = summaryData.slice(startIndex, endIndex);
 
-    // Render Summary Table
     const tbody = document.querySelector("#summary tbody");
     tbody.innerHTML = "";
     
@@ -2174,7 +2069,7 @@ function render() {
 
     renderPagination(summaryData.length);
 
-    // Render User-Wise Accordions (using full search-filtered data)
+    // Render User-Wise Accordions
     const usersObj = {};
     filteredDataForSearch.forEach(d => {
         if(!usersObj[d.user]) usersObj[d.user] = [];
@@ -2209,7 +2104,7 @@ function render() {
             <div class="accordion-table-container">
                 <table class="accordion-table">
                     <tr>
-                        <th>Engine Name</th>
+                        <th>Component Name</th>
                         <th>Assigned</th>
                         <th>Target</th>
                         <th>Completed</th>
@@ -2266,7 +2161,6 @@ function renderPagination(totalItems) {
     }
     container.style.display = "flex";
 
-    // Prev Button
     const prevBtn = document.createElement("button");
     prevBtn.className = "stepper-btn";
     prevBtn.disabled = currentPage === 1;
@@ -2280,7 +2174,6 @@ function renderPagination(totalItems) {
     };
     container.appendChild(prevBtn);
 
-    // Wrapper for steps
     const stepsWrapper = document.createElement("div");
     stepsWrapper.className = "stepper-steps-wrapper";
 
@@ -2288,7 +2181,6 @@ function renderPagination(totalItems) {
     stepsContainer.className = "stepper-steps";
     stepsWrapper.appendChild(stepsContainer);
 
-    // Generate steps array
     const steps = [];
     if (totalPages <= 6) {
         for (let i = 1; i <= totalPages; i++) {
@@ -2304,7 +2196,6 @@ function renderPagination(totalItems) {
         }
     }
 
-    // Append steps and lines
     for (let idx = 0; idx < steps.length; idx++) {
         const step = steps[idx];
 
@@ -2329,7 +2220,6 @@ function renderPagination(totalItems) {
             stepsContainer.appendChild(stepEl);
         }
 
-        // Add line between this step and the next
         if (idx < steps.length - 1) {
             const nextStep = steps[idx + 1];
             const lineEl = document.createElement("div");
@@ -2346,7 +2236,6 @@ function renderPagination(totalItems) {
 
     container.appendChild(stepsWrapper);
 
-    // Next Button
     const nextBtn = document.createElement("button");
     nextBtn.className = "stepper-btn";
     nextBtn.disabled = currentPage === totalPages;
@@ -2363,7 +2252,6 @@ function renderPagination(totalItems) {
 
 // Add Record
 async function saveRecord() {
-    // Blur the button to remove focus immediately
     const saveBtn = document.getElementById('btn-save');
     if (saveBtn) saveBtn.blur();
 
@@ -2383,7 +2271,7 @@ async function saveRecord() {
     const driveUrlVal = document.getElementById('drive-url').value.trim();
 
     if (!userVal || !engineVal) {
-        await showCustomAlert("Validation Error", "Assigned User and Engine Name are required!", true);
+        await showCustomAlert("Validation Error", "Assigned User and Component Name are required!", true);
         return;
     }
 
@@ -2437,7 +2325,7 @@ async function saveInline(id) {
         if (engineInput) {
             engineVal = engineInput.value.trim();
             if (!engineVal) {
-                await showCustomAlert("Validation Error", "Engine Name cannot be empty!", true);
+                await showCustomAlert("Validation Error", "Component Name cannot be empty!", true);
                 return;
             }
         }
@@ -2472,8 +2360,8 @@ async function deleteRecord(id) {
     }
     const record = data.find(d => d.id === id);
     const message = record 
-        ? `You are about to delete the project engine assignment of <strong style="color: var(--dark); font-weight: 700;">${record.engine}</strong> assigned to <strong style="color: var(--dark); font-weight: 700;">${record.user}</strong>.`
-        : "You are about to delete this project engine assignment.";
+        ? `You are about to delete the project component assignment of <strong style="color: var(--dark); font-weight: 700;">${record.engine}</strong> assigned to <strong style="color: var(--dark); font-weight: 700;">${record.user}</strong>.`
+        : "You are about to delete this project component assignment.";
 
     const confirmed = await showCustomConfirm(
         "Delete Assignment",
@@ -2485,8 +2373,6 @@ async function deleteRecord(id) {
         render();
     }
 }
-
-
 
 // Toggle Project Summary Table
 function toggleProjectSummary() {
@@ -2501,7 +2387,7 @@ function toggleProjectSummary() {
     }
 }
 
-// Reset Form to Add mode
+// Reset Form
 function resetForm() {
     const select = document.getElementById('existing-user');
     if (select) select.value = "";
@@ -2512,7 +2398,6 @@ function resetForm() {
     document.getElementById('remarks').value = "";
     document.getElementById('drive-url').value = "";
     
-    // Reset Assigned Date to today
     const today = new Date().toISOString().split("T")[0];
     const assignedInput = document.getElementById('assigned');
     if (assignedInput) assignedInput.value = today;
@@ -2528,7 +2413,7 @@ function showCustomConfirm(title, message, isDanger = true, okText = null, banne
         const iconEl = document.querySelector('.modal-icon');
 
         titleEl.innerText = title;
-        cancelBtn.style.display = ''; // Ensure cancel button is visible
+        cancelBtn.style.display = '';
 
         let bannerHTML = '';
         if (bannerText !== false) {
@@ -2633,15 +2518,15 @@ function showCustomAlert(title, message, isDanger = true) {
         const iconEl = document.querySelector('.modal-icon');
 
         titleEl.innerText = title;
-        cancelBtn.style.display = 'none'; // Hide cancel button for alerts
+        cancelBtn.style.display = 'none';
 
+        msgEl.innerHTML = `
+            <div style="font-size: 0.95rem; color: #4b5563; line-height: 1.5;">
+                ${message}
+            </div>
+        `;
+        
         if (isDanger) {
-            msgEl.innerHTML = `
-                <div style="font-size: 0.95rem; color: #4b5563; line-height: 1.5;">
-                    ${message}
-                </div>
-            `;
-            
             okBtn.className = "modal-btn btn-danger";
             okBtn.innerText = "OK";
             okBtn.style.background = "#dc3545";
@@ -2656,12 +2541,6 @@ function showCustomAlert(title, message, isDanger = true) {
                 </svg>
             `;
         } else {
-            msgEl.innerHTML = `
-                <div style="font-size: 0.95rem; color: #4b5563; line-height: 1.5;">
-                    ${message}
-                </div>
-            `;
-            
             okBtn.className = "modal-btn";
             okBtn.style.background = "var(--primary)";
             okBtn.style.color = "#ffffff";
@@ -2681,7 +2560,7 @@ function showCustomAlert(title, message, isDanger = true) {
 
         function cleanup() {
             modal.style.display = 'none';
-            cancelBtn.style.display = ''; // Restore default display
+            cancelBtn.style.display = '';
             okBtn.onclick = null;
         }
 
@@ -2694,7 +2573,5 @@ function showCustomAlert(title, message, isDanger = true) {
 
 // Initialize handled by DOMContentLoaded above
 </script>
-
-
 </body>
 </html>
