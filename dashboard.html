@@ -135,7 +135,7 @@ body {
 /* ── Project Cards Grid ──────────────────────────────────────────────────── */
 .projects-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     gap: 16px;
     margin-bottom: 20px;
     /* dynamic-projects-grid uses display:contents so cards join this grid */
@@ -1347,6 +1347,13 @@ function finishLoader() {
 
 document.addEventListener("DOMContentLoaded", async function() {
     startLoaderSimulation();
+
+    // Update header subtitle based on user role
+    const subtitleText = userRole === 'admin' ? 'ADMIN Dashboard' : 'User Dashboard';
+    const loaderSubtitle = document.querySelector('#page-loader .loader-subtitle');
+    if (loaderSubtitle) loaderSubtitle.textContent = subtitleText;
+    const brandSubtitle = document.querySelector('.navbar .brand-subtitle');
+    if (brandSubtitle) brandSubtitle.textContent = subtitleText;
 
     // Fill user info
     document.getElementById('user-info').style.display = 'flex';
