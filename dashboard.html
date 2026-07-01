@@ -7,6 +7,7 @@
 <link rel="icon" href="favicon.png" type="image/png">
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 /* ── Design Tokens ───────────────────────────────────────────────────────── */
 :root {
@@ -102,14 +103,14 @@ body {
 .hero-banner {
     background: linear-gradient(130deg, #dbeafe 0%, #ede9fe 55%, #d1fae5 100%);
     border-radius: 20px;
-    padding: 40px 48px 0 48px;
+    padding: 28px 40px 0 40px;
     margin-bottom: 24px;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
     position: relative;
     overflow: hidden;
-    min-height: 210px;
+    min-height: 160px;
 }
 .hero-banner::before {
     content: '';
@@ -118,12 +119,12 @@ body {
     background-size: 26px 26px;
     pointer-events: none;
 }
-.hero-text { position: relative; z-index: 2; padding-bottom: 44px; max-width: 520px; }
+.hero-text { position: relative; z-index: 2; padding-bottom: 28px; max-width: 520px; }
 .hero-text h2 {
-    font-size: 2.1rem; font-weight: 800;
-    color: #0f172a; margin: 0 0 10px; line-height: 1.25;
+    font-size: 1.8rem; font-weight: 800;
+    color: #0f172a; margin: 0 0 8px; line-height: 1.2;
 }
-.hero-text p { font-size: 0.98rem; color: #475569; margin: 0; }
+.hero-text p { font-size: 0.92rem; color: #475569; margin: 0; }
 
 .hero-illustration {
     position: relative; z-index: 2;
@@ -448,6 +449,310 @@ footer {
 .loader-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #3b82f6, #6366f1); border-radius: 99px; transition: width 0.3s ease; }
 .loader-pct { font-size: 0.74rem; font-weight: 700; color: #94a3b8; margin-top: -12px; }
 
+/* ── Collapsible Left-Hand Drawer ── */
+.admin-drawer {
+    position: fixed;
+    top: 0;
+    left: -400px;
+    width: 400px;
+    height: 100vh;
+    background: #ffffff;
+    box-shadow: var(--shadow-lg);
+    z-index: 2000;
+    transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+}
+.admin-drawer.open {
+    left: 0;
+}
+
+.drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.3);
+    backdrop-filter: blur(2px);
+    z-index: 1999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.drawer-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Toggle Trigger Tab */
+.drawer-toggle-btn {
+    position: fixed;
+    left: 0;
+    top: 150px;
+    z-index: 1000;
+    background: var(--dark);
+    color: #ffffff;
+    border: none;
+    border-radius: 0 10px 10px 0;
+    padding: 14px 10px;
+    cursor: pointer;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+}
+.drawer-toggle-btn:hover {
+    padding-left: 14px;
+    background: var(--primary);
+}
+.drawer-toggle-btn.drawer-open {
+    left: 400px;
+}
+
+/* Header inside drawer */
+.drawer-header {
+    padding: 20px 24px;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.drawer-header h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.drawer-close {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color 0.2s;
+    line-height: 1;
+    padding: 0;
+}
+.drawer-close:hover {
+    color: #ef4444;
+}
+
+/* Tabs inside Drawer */
+.drawer-tabs {
+    display: flex;
+    background: #f1f5f9;
+    padding: 4px;
+    margin: 16px 20px;
+    border-radius: 10px;
+}
+.drawer-tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 8px 4px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.drawer-tab-btn.active {
+    background: #ffffff;
+    color: var(--primary);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Content Area inside Drawer */
+.drawer-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 20px 24px 20px;
+}
+.tab-pane {
+    display: none;
+}
+.tab-pane.active {
+    display: block;
+}
+
+/* Sub-card layouts */
+.drawer-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+}
+.drawer-card-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+}
+
+/* Workload profile styling */
+.workload-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--border);
+}
+.workload-item:last-child {
+    border-bottom: none;
+}
+.workload-name {
+    font-weight: 700;
+    color: var(--dark);
+    font-size: 0.88rem;
+}
+.workload-badge {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    background: #e2e8f0;
+    color: #475569;
+}
+
+/* Overdue Task card layout */
+.overdue-task-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-left: 4px solid #ef4444;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    box-shadow: var(--shadow-sm);
+}
+.overdue-title {
+    font-weight: 700;
+    color: var(--dark);
+    font-size: 0.84rem;
+    margin-bottom: 3px;
+}
+.overdue-meta {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Broadcast Tab form */
+.broadcast-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.broadcast-form textarea {
+    width: 100%;
+    height: 90px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    resize: none;
+    background: #f8fafc;
+    transition: all 0.2s;
+}
+.broadcast-form textarea:focus {
+    background: #fff;
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+}
+.btn-broadcast-publish {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.88rem;
+    transition: background 0.2s;
+    text-align: center;
+}
+.btn-broadcast-publish:hover {
+    background: var(--primary-hover);
+}
+
+/* Global Announcement Banner */
+.announcement-banner {
+    background: linear-gradient(90deg, #eff6ff 0%, #faf5ff 100%);
+    border: 1px solid #dbeafe;
+    border-left: 4px solid var(--primary);
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: var(--shadow-sm);
+    animation: slideDownBanner 0.4s ease-out;
+}
+@keyframes slideDownBanner {
+    from { transform: translateY(-10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+.announcement-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1e40af;
+}
+.announcement-close {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #93c5fd;
+    font-size: 1.2rem;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s;
+}
+.announcement-close:hover {
+    color: #2563eb;
+}
+
+/* Audit Logs */
+.audit-log-item {
+    font-size: 0.76rem;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--border);
+    color: var(--text-main);
+}
+.audit-log-item:last-child {
+    border-bottom: none;
+}
+.audit-log-time {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 992px) {
     .admin-grid { grid-template-columns: 1fr; }
@@ -470,6 +775,68 @@ footer {
 </style>
 </head>
 <body>
+
+<!-- ── Admin collapsible Left Drawer & Overlay ── -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="toggleAdminDrawer()"></div>
+<button class="drawer-toggle-btn" id="drawer-toggle-btn" onclick="toggleAdminDrawer()">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(-90deg); margin-bottom: 2px;">
+        <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+    <span>Announcements</span>
+</button>
+
+<div class="admin-drawer" id="admin-drawer">
+    <div class="drawer-header">
+        <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            Volga Announcements
+        </h3>
+        <button class="drawer-close" onclick="toggleAdminDrawer()">&times;</button>
+    </div>
+
+    <div class="drawer-content" style="padding-top: 20px;">
+        <!-- Admin Quick Actions inside Sidebar Drawer -->
+        <div id="admin-drawer-actions" style="display: none; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+            <button class="btn-create-project" style="margin: 0; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; height: 44px; border-radius: 10px; border: none; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';" onclick="toggleBroadcastEditor()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                Create Announcement
+            </button>
+            <button class="btn-create-project" style="margin: 0; background: linear-gradient(135deg, #10b981, #059669); color: white; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; height: 44px; border-radius: 10px; border: none; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';" onclick="downloadPortalSummary()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download Summary
+            </button>
+        </div>
+
+        <div class="drawer-card">
+            <div class="drawer-card-title">Current Announcement</div>
+            <div id="active-broadcast-message" style="font-size: 0.88rem; line-height: 1.4; color: var(--text-main); word-break: break-word;">
+                <em>No active announcement.</em>
+            </div>
+        </div>
+        <div class="drawer-card" id="admin-broadcast-editor" style="display: none;">
+            <div class="drawer-card-title">Publish New Announcement</div>
+            <div class="broadcast-form">
+                <textarea id="broadcast-input" placeholder="Type announcement message here..."></textarea>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn-broadcast-publish" style="flex:1;" onclick="publishBroadcast()">Publish</button>
+                    <button class="btn-broadcast-publish" style="background:#ef4444;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'" onclick="deleteBroadcast()" title="Delete announcement">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- ── Page Loader ──────────────────────────────────────────────────────── -->
 <div id="page-loader">
@@ -509,6 +876,19 @@ footer {
     </div>
 </nav>
 
+<!-- Global Announcement Banner -->
+<div class="announcement-banner" id="global-announcement-banner" style="display: none;">
+    <div class="announcement-content">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary); flex-shrink: 0;">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <span id="announcement-banner-text"></span>
+    </div>
+    <button class="announcement-close" onclick="closeAnnouncementBanner()">&times;</button>
+</div>
+
 <!-- ── Hero Banner ──────────────────────────────────────────────────────── -->
 <div class="hero-banner">
     <div class="hero-text">
@@ -517,7 +897,7 @@ footer {
     </div>
     <div class="hero-illustration">
         <!-- Analytics Dashboard Illustration (inline SVG) -->
-        <svg width="330" height="205" viewBox="0 0 330 205" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="250" height="155" viewBox="0 0 330 205" fill="none" xmlns="http://www.w3.org/2000/svg">
             <!-- Background floating big card -->
             <rect x="8" y="72" width="246" height="126" rx="14" fill="white" style="filter:drop-shadow(0 6px 24px rgba(30,41,59,0.10))"/>
             <!-- Horizontal grid lines inside chart -->
@@ -698,6 +1078,8 @@ footer {
 
 <!-- ── Admin Grid (shown only to admins) ────────────────────────────────── -->
 <div class="admin-grid" id="admin-grid" style="display:none;">
+
+    <!-- Admin Quick Actions moved to Sidebar Drawer -->
 
     <!-- Create New Project card -->
     <div class="admin-action-card blue-border">
@@ -975,6 +1357,26 @@ document.addEventListener("DOMContentLoaded", async function() {
     const avatarEl = document.getElementById('user-avatar-char');
     if (avatarEl) avatarEl.innerText = avatarChar;
 
+    // Configure toggler & admin grid
+    const toggleBtnSpan = document.querySelector('#drawer-toggle-btn span');
+    if (toggleBtnSpan) {
+        toggleBtnSpan.textContent = userRole === 'admin' ? 'Admin Panel' : 'Announcements';
+    }
+    const drawerHeaderTitle = document.querySelector('.drawer-header h3');
+    if (drawerHeaderTitle && userRole === 'admin') {
+        drawerHeaderTitle.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="9" y1="3" x2="9" y2="21"></line>
+            </svg>
+            Volga Admin Panel
+        `;
+    }
+    const drawerActions = document.getElementById('admin-drawer-actions');
+    if (drawerActions && userRole === 'admin') {
+        drawerActions.style.display = 'flex';
+    }
+
     if (userRole === 'admin') {
         document.getElementById('admin-grid').style.display = 'grid';
     }
@@ -993,6 +1395,15 @@ document.addEventListener("DOMContentLoaded", async function() {
         const assigned = me ? (me.assignedProjects || []) : [];
         console.log('[Access] user:', userName, '| found:', me ? me.id : 'NOT FOUND', '| assigned:', assigned);
         filterCardsForUser(assigned);
+    }
+
+    // Load active announcement
+    await loadAnnouncement();
+
+    // Show announcement publisher for Admin only (starts hidden, toggled by button)
+    const editor = document.getElementById('admin-broadcast-editor');
+    if (editor) {
+        editor.style.display = 'none';
     }
 
     finishLoader();
@@ -1158,8 +1569,18 @@ function renderAuthUsers() {
                             </span>
                         </span>
                         <div style="display:flex;gap:5px;flex-shrink:0;">
-                            <button class="btn-revoke-desk" style="background:#3b82f6;font-size:0.85rem;" onclick="editDisplayName('${u.id}', '${u.displayName.replace(/'/g, "&#39;")}')" title="Edit Display Name">&#9998;</button>
-                            <button class="btn-revoke-desk" onclick="removeAuthUser('${u.id}')" title="Revoke access">&times;</button>
+                            <button class="btn-revoke-desk" style="background:#3b82f6;display:inline-flex;align-items:center;justify-content:center;padding:0;" onclick="editDisplayName('${u.id}', '${u.displayName.replace(/'/g, "&#39;")}')" title="Edit Display Name">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                            <button class="btn-revoke-desk" style="display:inline-flex;align-items:center;justify-content:center;padding:0;" onclick="removeAuthUser('${u.id}')" title="Revoke access">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
                         </div>
                     </div>
                     <!-- Middle Line: ID + Creation Date -->
@@ -1579,6 +2000,407 @@ function showCustomConfirm(title, message, isDanger = true, okText = null, banne
         okBtn.onclick    = () => { cleanup(); resolve(true);  };
         cancelBtn.onclick = () => { cleanup(); resolve(false); };
     });
+}
+
+// ─── Collapsible Left-Hand Drawer Logic ───────────────────────────────────────
+function toggleAdminDrawer() {
+    const drawer = document.getElementById('admin-drawer');
+    const overlay = document.getElementById('drawer-overlay');
+    const toggleBtn = document.getElementById('drawer-toggle-btn');
+    if (drawer.classList.contains('open')) {
+        drawer.classList.remove('open');
+        overlay.classList.remove('active');
+        toggleBtn.classList.remove('drawer-open');
+    } else {
+        drawer.classList.add('open');
+        overlay.classList.add('active');
+        toggleBtn.classList.add('drawer-open');
+        loadAnnouncement();
+    }
+}
+
+// ─── Global Announcements Logic ──────────────────────────────────────────────
+async function loadAnnouncement() {
+    let msg = "";
+    if (db) {
+        try {
+            const doc = await db.collection('announcements').doc('global').get();
+            if (doc.exists) {
+                msg = doc.data().message || "";
+            }
+        } catch (e) {
+            console.error("Failed to read global announcement from Firestore:", e);
+        }
+    }
+    if (!msg) {
+        msg = localStorage.getItem('volgaGlobalAnnouncement') || "";
+    }
+    displayAnnouncement(msg);
+}
+
+function displayAnnouncement(msg) {
+    const banner = document.getElementById('global-announcement-banner');
+    const bannerText = document.getElementById('announcement-banner-text');
+    const drawerMsg = document.getElementById('active-broadcast-message');
+    const broadcastInput = document.getElementById('broadcast-input');
+
+    if (msg && msg.trim()) {
+        if (bannerText) bannerText.innerText = msg;
+        if (banner && sessionStorage.getItem('announcementClosed') !== 'true') {
+            banner.style.display = 'flex';
+        }
+        if (drawerMsg) drawerMsg.innerText = msg;
+        if (broadcastInput) broadcastInput.value = msg;
+    } else {
+        if (banner) banner.style.display = 'none';
+        if (drawerMsg) drawerMsg.innerHTML = '<em>No active announcement.</em>';
+        if (broadcastInput) broadcastInput.value = '';
+    }
+}
+
+async function publishBroadcast() {
+    if (userRole !== 'admin') return;
+    const input = document.getElementById('broadcast-input');
+    const msg = input ? input.value.trim() : "";
+
+    if (db) {
+        try {
+            await db.collection('announcements').doc('global').set({
+                message: msg,
+                updatedAt: new Date().toISOString(),
+                updatedBy: userName
+            });
+        } catch (e) {
+            console.error("Firestore write announcement failed:", e);
+        }
+    }
+    localStorage.setItem('volgaGlobalAnnouncement', msg);
+    sessionStorage.removeItem('announcementClosed');
+
+    displayAnnouncement(msg);
+    showCustomAlert("Published", "Announcement published successfully.", false);
+}
+
+async function deleteBroadcast() {
+    if (userRole !== 'admin') return;
+    const confirmed = await showCustomConfirm("Delete Announcement", "Are you sure you want to clear the global announcement?", true, "Delete", false);
+    if (!confirmed) return;
+
+    if (db) {
+        try {
+            await db.collection('announcements').doc('global').delete();
+        } catch (e) {
+            console.error("Firestore delete announcement failed:", e);
+        }
+    }
+    localStorage.removeItem('volgaGlobalAnnouncement');
+    sessionStorage.removeItem('announcementClosed');
+
+    displayAnnouncement("");
+    showCustomAlert("Deleted", "Announcement deleted successfully.", false);
+}
+
+function closeAnnouncementBanner() {
+    const banner = document.getElementById('global-announcement-banner');
+    if (banner) banner.style.display = 'none';
+    sessionStorage.setItem('announcementClosed', 'true');
+}
+
+function toggleBroadcastEditor() {
+    const editor = document.getElementById('admin-broadcast-editor');
+    if (editor) {
+        if (editor.style.display === 'none') {
+            editor.style.display = 'block';
+            const input = document.getElementById('broadcast-input');
+            if (input) input.focus();
+        } else {
+            editor.style.display = 'none';
+        }
+    }
+}
+
+async function downloadPortalSummary() {
+    if (userRole !== 'admin') return;
+
+    startLoaderSimulation();
+
+    // 1. Setup Premium Color Palette for dynamic user mapping
+    const colorPalette = [
+        'linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%)',   // Sapphire Blue
+        'linear-gradient(180deg, #34d399 0%, #059669 100%)',   // Emerald Green
+        'linear-gradient(180deg, #c084fc 0%, #8b5cf6 100%)',   // Royal Purple
+        'linear-gradient(180deg, #fbbf24 0%, #d97706 100%)',   // Warm Amber
+        'linear-gradient(180deg, #f87171 0%, #dc2626 100%)',   // Crimson Coral
+        'linear-gradient(180deg, #2dd4bf 0%, #0d9488 100%)',   // Ocean Teal
+        'linear-gradient(180deg, #f472b6 0%, #db2777 100%)',   // Deep Fuchsia
+        'linear-gradient(180deg, #fb923c 0%, #ea580c 100%)',   // Vivid Orange
+        'linear-gradient(180deg, #38bdf8 0%, #0284c7 100%)'    // Sky Blue
+    ];
+    let userColorMap = {};
+    let nextColorIndex = 0;
+
+    // 2. Get projects list
+    const registry = getProjectRegistry();
+    const projects = [
+        { id: 'engine_vr', name: 'Engine VR', firestoreCollection: 'engines', localStorageKey: 'engineTrackerData' },
+        { id: 'gutfeeling', name: 'GutFeeling', firestoreCollection: 'gutfeeling_engines', localStorageKey: 'gutfeelingTrackerData' },
+        { id: 'chaff', name: 'Chaff Extension', firestoreCollection: 'chaff_engines', localStorageKey: 'chaffTrackerData' },
+        ...registry.map(p => ({
+            id: p.id,
+            name: p.name,
+            firestoreCollection: p.firestoreCollection || (p.id + '_records'),
+            localStorageKey: p.localStorageKey || (p.id + 'TrackerData')
+        }))
+    ];
+
+    let totalTasksCount = 0;
+    let completedCount = 0;
+    let inProgressCount = 0;
+    let notStartedCount = 0;
+    let projectTableRows = "";
+    let userWorkload = {};
+    let projectChartsHTML = "";
+
+    // Generate dynamic breakdowns and user contribution bar graphs
+    for (const p of projects) {
+        let records = [];
+        if (db) {
+            try {
+                const snapshot = await db.collection(p.firestoreCollection).get();
+                records = snapshot.docs.map(doc => doc.data());
+            } catch (e) {
+                console.error(`Firebase fetch ${p.name} failed:`, e);
+            }
+        }
+        if (records.length === 0) {
+            const local = localStorage.getItem(p.localStorageKey);
+            records = local ? JSON.parse(local) : [];
+        }
+
+        const total = records.length;
+        const comp = records.filter(r => r.status === 'Completed').length;
+        const prog = records.filter(r => r.status === 'In Progress').length;
+        const pend = records.filter(r => r.status === 'Not Started').length;
+
+        totalTasksCount += total;
+        completedCount += comp;
+        inProgressCount += prog;
+        notStartedCount += pend;
+
+        projectTableRows += `
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 10px 12px; font-weight: 700; color: #1e293b; font-size: 11px;">${p.name}</td>
+                <td style="padding: 10px 12px; text-align: center;"><span style="background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 12px; font-weight: 700; font-size: 11px;">${total}</span></td>
+                <td style="padding: 10px 12px; text-align: center;"><span style="background: #e6fbf1; color: #047857; padding: 3px 8px; border-radius: 12px; font-weight: 700; font-size: 11px;">${comp}</span></td>
+                <td style="padding: 10px 12px; text-align: center;"><span style="background: #eff6ff; color: #1d4ed8; padding: 3px 8px; border-radius: 12px; font-weight: 700; font-size: 11px;">${prog}</span></td>
+                <td style="padding: 10px 12px; text-align: center;"><span style="background: #fffbeb; color: #b45309; padding: 3px 8px; border-radius: 12px; font-weight: 700; font-size: 11px;">${pend}</span></td>
+            </tr>
+        `;
+
+        // Calculate user contributions in this project
+        let counts = {};
+        records.forEach(r => {
+            const assign = r.user || 'Unassigned';
+            counts[assign] = (counts[assign] || 0) + 1;
+
+            // Global stats collector
+            if (!userWorkload[assign]) {
+                userWorkload[assign] = { total: 0, completed: 0, progress: 0, pending: 0 };
+            }
+            userWorkload[assign].total++;
+            if (r.status === 'Completed') userWorkload[assign].completed++;
+            else if (r.status === 'In Progress') userWorkload[assign].progress++;
+            else userWorkload[assign].pending++;
+        });
+
+        const sortedUsers = Object.keys(counts).sort();
+        const maxTasks = sortedUsers.length > 0 ? Math.max(...Object.values(counts)) : 0;
+
+        let barsHTML = "";
+        sortedUsers.forEach(user => {
+            const count = counts[user];
+            // Scale bar height to max 90px inside a 130px container
+            const barHeight = maxTasks > 0 ? Math.round((count / maxTasks) * 90) : 0;
+
+            // Assign unique color dynamically to this user
+            if (!userColorMap[user]) {
+                userColorMap[user] = colorPalette[nextColorIndex % colorPalette.length];
+                nextColorIndex++;
+            }
+            const barColor = userColorMap[user];
+
+            barsHTML += `
+                <div style="display: flex; flex-direction: column; align-items: center; width: 58px; flex-shrink: 0;">
+                    <span style="font-size: 10px; font-weight: 800; color: #475569; margin-bottom: 2px;">${count}</span>
+                    <div style="width: 24px; height: ${barHeight}px; background: ${barColor}; border-top-left-radius: 6px; border-top-right-radius: 6px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"></div>
+                    <span style="font-size: 9px; font-weight: 700; color: #1e293b; margin-top: 6px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 58px; display: inline-flex; align-items: center; justify-content: center; gap: 3px;" title="${user}">
+                        <span style="display:inline-block; width:5px; height:5px; border-radius:50%; background: ${barColor};"></span>
+                        ${user}
+                    </span>
+                </div>
+            `;
+        });
+
+        projectChartsHTML += `
+            <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-left: 4px solid #8b5cf6; border-radius: 16px; padding: 18px; box-sizing: border-box; page-break-inside: avoid; margin-bottom: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                    <span style="font-weight: 800; font-size: 12px; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">${p.name}</span>
+                    <span style="font-size: 11px; font-weight: 700; background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 12px;">${total} Tasks</span>
+                </div>
+                
+                ${total > 0 ? `
+                <div style="display: flex; height: 130px; border-left: 2px solid #cbd5e1; border-bottom: 2px solid #cbd5e1; position: relative; padding-left: 8px; margin-left: 24px; box-sizing: border-box;">
+                    <!-- Y-Axis Ticks -->
+                    <div style="position: absolute; left: -26px; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: space-between; font-size: 9px; font-weight: 700; color: #94a3b8; text-align: right; width: 20px; line-height: 1;">
+                        <span>${maxTasks}</span>
+                        <span>${Math.round(maxTasks/2)}</span>
+                        <span>0</span>
+                    </div>
+                    <!-- Chart grid lines -->
+                    <div style="position: absolute; left: 0; right: 0; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; z-index: 1;">
+                        <div style="border-top: 1px dashed #e2e8f0; width: 100%; height: 0;"></div>
+                        <div style="border-top: 1px dashed #e2e8f0; width: 100%; height: 0;"></div>
+                        <div style="border-top: 1px dashed #e2e8f0; width: 100%; height: 0;"></div>
+                    </div>
+                    <!-- Columns Container -->
+                    <div style="display: flex; align-items: flex-end; justify-content: flex-start; gap: 16px; padding-left: 12px; width: 100%; height: 100%; z-index: 2; position: relative; padding-bottom: 1px; box-sizing: border-box;">
+                        ${barsHTML}
+                    </div>
+                </div>
+                <!-- X-Axis Title -->
+                <div style="text-align: center; font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 8px;">Workspace Team Members</div>
+                ` : `
+                <div style="font-size: 11px; color: #94a3b8; font-style: italic; text-align: center; padding: 20px 0;">
+                    No tasks assigned to any team members in this workspace.
+                </div>
+                `}
+            </div>
+        `;
+    }
+
+    let userTableRows = "";
+    Object.keys(userWorkload).sort().forEach(user => {
+        const stats = userWorkload[user];
+        userTableRows += `
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 10px 12px; font-weight: 700; color: #1e293b; font-size: 11px;">${user}</td>
+                <td style="padding: 10px 12px; text-align: center;"><span style="background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 12px; font-weight: 700; font-size: 11px;">${stats.total}</span></td>
+                <td style="padding: 10px 12px; text-align: center;"><span style="background: #e6fbf1; color: #047857; padding: 3px 8px; border-radius: 12px; font-weight: 700; font-size: 11px;">${stats.completed}</span></td>
+                <td style="padding: 10px 12px; text-align: center;"><span style="background: #eff6ff; color: #1d4ed8; padding: 3px 8px; border-radius: 12px; font-weight: 700; font-size: 11px;">${stats.progress}</span></td>
+                <td style="padding: 10px 12px; text-align: center;"><span style="background: #fffbeb; color: #b45309; padding: 3px 8px; border-radius: 12px; font-weight: 700; font-size: 11px;">${stats.pending}</span></td>
+            </tr>
+        `;
+    });
+
+    if (!userTableRows) {
+        userTableRows = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: #94a3b8; font-style: italic;">No workload recorded.</td></tr>`;
+    }
+
+    // Create dynamic document markup in memory
+    const element = document.createElement('div');
+    element.innerHTML = `
+        <div style="padding: 40px; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; color: #1e293b; background: white; max-width: 760px; line-height: 1.5; box-sizing: border-box;">
+            <!-- Header -->
+            <div style="border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <div>
+                        <h1 style="margin: 0; font-size: 24px; color: #0f172a; font-weight: 900; letter-spacing: -0.8px; line-height: 1.1;">VOLGA INFOSYS</h1>
+                        <p style="margin: 2px 0 0 0; font-size: 9px; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Portal Summary Report</p>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <p style="margin: 0; font-size: 11px; color: #64748b; font-weight: 600;">Report Generated: <span style="color: #0f172a; font-weight: 700;">${new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></p>
+                    <p style="margin: 3px 0 0 0; font-size: 11px; color: #64748b; font-weight: 600;">Authorized By: <span style="color: #0f172a; font-weight: 700;">${userName}</span></p>
+                </div>
+            </div>
+            
+            <hr style="height: 4px; background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #10b981 100%); border: none; margin: -25px 0 24px 0; border-radius: 2px;">
+
+            <!-- Global Stats Grid -->
+            <div style="display: flex; gap: 14px; margin-bottom: 30px;">
+                <div style="flex: 1; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border: 1.5px solid #e2e8f0; border-left: 4px solid #3b82f6; border-radius: 12px; padding: 14px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01);">
+                    <div style="font-size: 9px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Total Projects</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #1e3a8a; letter-spacing: -0.5px;">${projects.length}</div>
+                </div>
+                <div style="flex: 1; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border: 1.5px solid #e2e8f0; border-left: 4px solid #475569; border-radius: 12px; padding: 14px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01);">
+                    <div style="font-size: 9px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Total Active Tasks</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;">${totalTasksCount}</div>
+                </div>
+                <div style="flex: 1; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border: 1.5px solid #e2e8f0; border-left: 4px solid #10b981; border-radius: 12px; padding: 14px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01);">
+                    <div style="font-size: 9px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Completion Rate</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #065f46; letter-spacing: -0.5px;">${totalTasksCount > 0 ? Math.round((completedCount/totalTasksCount)*100) : 0}%</div>
+                </div>
+                <div style="flex: 1; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border: 1.5px solid #e2e8f0; border-left: 4px solid #f59e0b; border-radius: 12px; padding: 14px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01);">
+                    <div style="font-size: 9px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">In Progress</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #92400e; letter-spacing: -0.5px;">${inProgressCount}</div>
+                </div>
+            </div>
+
+            <!-- Section: Project Breakdowns -->
+            <h2 style="font-size: 13px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 10px 0; border-left: 4px solid #2563eb; padding-left: 8px; line-height: 1.1;">Project Workspace Breakdown</h2>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 11px;">
+                <thead>
+                    <tr style="background: #f8fafc; border-bottom: 2px solid #cbd5e1; text-align: left;">
+                        <th style="padding: 8px 10px; font-weight: 800; color: #475569; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Project Name</th>
+                        <th style="padding: 8px 10px; font-weight: 800; color: #475569; text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Total Tasks</th>
+                        <th style="padding: 8px 10px; font-weight: 800; color: #475569; text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Completed</th>
+                        <th style="padding: 8px 10px; font-weight: 800; color: #475569; text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">In Progress</th>
+                        <th style="padding: 8px 10px; font-weight: 800; color: #475569; text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Pending</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${projectTableRows}
+                </tbody>
+            </table>
+
+            <!-- Section: Team Workloads -->
+            <h2 style="font-size: 13px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 10px 0; border-left: 4px solid #10b981; padding-left: 8px; line-height: 1.1;">Team Workload Status (Cumulative)</h2>
+            <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 30px;">
+                <thead>
+                    <tr style="background: #f8fafc; border-bottom: 2px solid #cbd5e1; text-align: left;">
+                        <th style="padding: 8px 10px; font-weight: 800; color: #475569; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Team Member</th>
+                        <th style="padding: 8px 10px; font-weight: 800; color: #475569; text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Total Tasks</th>
+                        <th style="padding: 8px 10px; font-weight: 800; color: #475569; text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Done</th>
+                        <th style="padding: 8px 10px; font-weight: 800; color: #475569; text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Active</th>
+                        <th style="padding: 8px 10px; font-weight: 800; color: #475569; text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Pending</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${userTableRows}
+                </tbody>
+            </table>
+
+            <!-- Section: Project Contribution Bar Graphs -->
+            <h2 style="font-size: 13px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 12px 0; border-left: 4px solid #8b5cf6; padding-left: 8px; line-height: 1.1;">Project Contribution Analysis (User vs. Contribution)</h2>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                ${projectChartsHTML}
+            </div>
+
+            <div style="border-top: 1.5px solid #e2e8f0; padding-top: 14px; text-align: center; font-size: 9px; color: #94a3b8; font-weight: 600; margin-top: 30px;">
+                Volga Infosys Summary Analytics Report &bull; Generated from live cloud tracker databases &bull; Page 1 of 1
+            </div>
+        </div>
+    `;
+
+    // 3. Export PDF
+    const opt = {
+        margin:       0.3,
+        filename:     `volga_portal_summary_${new Date().toISOString().split('T')[0]}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2.5, useCORS: true, logging: false },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    try {
+        await html2pdf().from(element).set(opt).save();
+    } catch(e) {
+        console.error("PDF generation failed:", e);
+    }
+
+    finishLoader();
 }
 </script>
 </body>
